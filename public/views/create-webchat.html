@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html ng-app="app">
+	<head>
+  	<!-- Title -->
+		<title>Create a conference</title>
+
+		<!-- Metas -->
+    <meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, user-scalable=no">
+
+		<!-- Vendor stylesheets -->
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans|Quicksand:300,400,500,700" rel="stylesheet" />
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
+
+		<!-- Custom stylesheets -->
+		<link rel="stylesheet" type="text/css" href="/public/stylesheets/global.css" />
+
+		<!-- Vendor scripts -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular.js"></script>
+	</head>
+	<body ng-controller="conferenceCreate">
+		<div class="navbar">
+		  <div class="navbar-container">
+		    <div class="navbar-brand">
+		      <a href="/">
+		        <span class="fa fa-cloud fa-fw"></span>
+		      </a>
+		    </div>
+		    <div class="navbar-nav">
+		      <ul>
+		        <li><a href="/">Premium</a></li>
+		      </ul>
+		    </div>
+		  </div>
+		</div>
+
+		<div class="page-header">
+			<h2>Create a webchat conference</h2>
+			<p>Start exchanging instant messages.</p>
+		</div>
+
+		<form ng-submit="submit()">
+			<div class="form-block">
+				<div class="form-block-title">
+					Who are you ?
+				</div>
+				<div class="form-block-body">
+					<input type="email" placeholder="Email address" ng-model="users.host.email" />
+					<input type="text" placeholder="First name (optional)" ng-model="users.host.firstName" />
+					<input type="text" placeholder="Last name (optional)" ng-model="users.host.lastName" />
+					<input type="text" placeholder="Company name (optional)" ng-model="users.host.companyName" />
+				</div>
+			</div>
+
+			<div class="form-block">
+				<div class="form-block-title">
+					Who is your guest ?
+				</div>
+				<div class="form-block-body">
+					<input type="email" placeholder="Email address" ng-model="users.guest.email" />
+					<input type="text" placeholder="First name (optional)" ng-model="users.guest.firstName" />
+					<input type="text" placeholder="Last name (optional)" ng-model="users.guest.lastName" />
+				</div>
+			</div>
+
+			<div class="form-block">
+				<div class="form-block-title">
+					When is it happening ?
+				</div>
+				<div class="form-block-body">
+					<input type="date" ng-model="conference.date" />
+					<input type="time" ng-model="conference.time" />
+				</div>
+			</div>
+
+			<div class="form-block">
+				<div class="form-block-title">
+					Anything else ?
+				</div>
+				<div class="form-block-body">
+					<textarea placeholder="Add a personnal message to your invitation (optional)" rows="10" ng-model="conference.message"></textarea>
+				</div>
+			</div>
+
+			<div class="form-block">
+				<div class="form-block-body">
+					<input type="submit" value="Send invitation"/>
+				</div>
+			</div>
+		</form>
+
+		<script>
+		(function() {
+			var app = angular.module('app', []);
+
+			app.controller('conferenceCreate', function($scope, $http, $window, $location) {
+				var url = $location.absUrl().split('/');
+				var type = url[url.length - 1];
+				var formatDatetime = function(date, time) {
+					var d = new Date(date);
+					var t = new Date(time);
+					var f = function(s) {
+						s = s.toString();
+						return (s.length == 1) ? '0' + s : s;
+					}
+
+					var dt = {
+						y: d.getFullYear(),
+						m: f(d.getMonth() + 1),
+						d: f(d.getDate()),
+						h: f(t.getHours()),
+						i: f(t.getMinutes())
+					};
+
+					return `${dt.y}-${dt.m}-${dt.d} ${dt.h}:${dt.i}:00`;
+				}
+
+				$scope.users = {
+					host: {
+						email: 'talkrtc@gmail.com',
+						firstName: '',
+						lastName: '',
+						companyName: ''
+					},
+					guest: {
+						email: 'r.ludosanu@gmail.com',
+						firstName: '',
+						lastName: ''
+					}
+				};
+
+				$scope.conference = {
+					type: (['webchat', 'webcall'].indexOf(type) != -1) ? type : 'webchat',
+					date: '',
+					time: '',
+					message: ''
+				};
+
+				$scope.submit = function() {
+					$http({
+						method: 'POST',
+						url: 'http://127.0.0.1:3000/api/conference',
+		        data: {
+							hostEmail: $scope.users.host.email,
+							hostFirstName: $scope.users.host.firstName,
+							hostLastName: $scope.users.host.lastName,
+							hostCompanyName: $scope.users.host.companyName,
+							guestEmail: $scope.users.guest.email,
+							guestFirstName: $scope.users.guest.firstName,
+							guestLastName: $scope.users.guest.lastName,
+							conferenceType: $scope.conference.type,
+							conferenceDate: formatDatetime($scope.conference.date, $scope.conference.time),
+							conferenceMessage: $scope.conference.message
+						}
+					})
+					.then(result => {
+						console.log(result);
+		      })
+					.catch(error => {
+						console.error(error);
+					});
+				}
+			});
+		})();
+		</script>
+	</body>
+</html>

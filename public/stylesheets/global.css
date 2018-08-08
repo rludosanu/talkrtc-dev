@@ -1,0 +1,156 @@
+/* ************************************************************************** */
+/*                                                                            */
+/* File name   : global.css                                                   */
+/* Description : Global stylesheet to be applied on every html pages          */
+/* Author      : Razvan Ludosanu                                              */
+/* Email       : ludosanu@gmail.com                                           */
+/*                                                                            */
+/* ************************************************************************** */
+
+/*
+** General
+*/
+
+body {
+  margin: 0px;
+  padding: 0px;
+  background: white;
+  font-family: 'Quicksand';
+}
+
+button,
+input,
+select,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Quicksand';
+  font-size: 14px;
+  border: 1px solid #E5E4E2;
+  color: #333333;
+  padding: 12px;
+  border-radius: 6px;
+  outline: none;
+  margin: 5px 0px;
+  -webkit-transition: border 0.5s;
+  transition: border 0.5s;
+}
+
+button {
+  -webkit-transition: background 0.5s;
+  transition: background 0.5s;
+}
+
+button:hover,
+input:hover,
+select:hover,
+textarea:hover {
+  border: 1px solid #333333;
+}
+
+button:hover {
+  background: #333333;
+  color: white;
+}
+
+a {
+  text-decoration: none;
+}
+
+/*
+** Navbar
+*/
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  margin: 0px auto;
+  align-items: center;
+  padding: 15px 150px;
+}
+
+.navbar-container a {
+  color: #333333;
+}
+
+.navbar-nav {
+  flex-grow: 1;
+}
+
+.navbar-brand {
+  font-size: 28px;
+  color: #333333;
+}
+
+.navbar-nav ul {
+  margin: 0px;
+  padding: 0px;
+  list-style-type: none;
+  float: right;
+}
+
+.navbar-nav ul li {
+  display: inline-block;
+}
+
+.navbar-nav ul li:last-of-type {
+  margin: 0px;
+}
+
+.navbar-nav ul li a {
+  font-size: 15px;
+  margin: 0px 50px 0px 0px;
+}
+
+.navbar-nav ul li a:hover,
+.navbar-nav ul li a.active {
+  color: #3B84F7;
+}
+
+/*
+** Page header
+*/
+
+.page-header {
+  width: 500px;
+  margin: 50px auto;
+  text-align: center;
+}
+
+.page-header img {
+  max-width: 100%;
+}
+
+.page-header h2 {
+  font-size: 32px;
+  font-weight: 400;
+  color: #111111;
+  margin: 10px 0px;
+}
+
+.page-header p {
+  font-size: 20px;
+  font-weight: 300;
+  color: #333333;
+  margin: 10px 0px;
+}
+
+/*
+** Forms
+*/
+
+.form-block {
+  width: 500px;
+  margin: 50px auto;
+}
+
+.form-block-title {
+  font-weight: 300;
+  color: #111111;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.form-block-body {
+
+}

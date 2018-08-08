@@ -1,0 +1,175 @@
+/* ************************************************************************** */
+/*                                                                            */
+/* File name   : index.css                                                    */
+/* Description : Index page stylesheet                                        */
+/* Author      : Razvan Ludosanu                                              */
+/* Email       : ludosanu@gmail.com                                           */
+/*                                                                            */
+/* ************************************************************************** */
+
+/*
+** Jumbo
+*/
+
+.jumbo {
+  background-image: url('https://images.pexels.com/photos/155008/pexels-photo-155008.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 700px;
+  padding: 150px;
+  display: flex;
+  align-items: center;
+}
+
+.jumbo-body {
+
+}
+
+.jumbo-body .jumbo-title,
+.jumbo-body .jumbo-text {
+  color: white;
+}
+
+.jumbo-body .jumbo-title {
+  font-size: 50px;
+  margin-bottom: 10px;
+}
+
+.jumbo-body .jumbo-text {
+  font-size: 22px;
+  margin-bottom: 45px;
+}
+
+.jumbo-body .jumbo-buttons {
+  display: flex;
+  color: white;
+}
+
+.jumbo-body .jumbo-buttons .jumbo-buttons-button {
+  text-align: center;
+  margin-right: 65px;
+}
+
+.jumbo-body .jumbo-buttons .jumbo-buttons-button a {
+  color: white;
+  text-decoration: none;
+}
+
+.jumbo-body .jumbo-buttons .jumbo-buttons-button:last-of-type {
+  margin-right: 0px;
+}
+
+.jumbo-body .jumbo-buttons .jumbo-buttons-icon {
+  font-size: 20px;
+  border: 2px solid white;
+  padding: 25px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-bottom: 15px;
+  -webkit-transition: background 0.5s;
+  transition: background 0.5s;
+}
+
+.jumbo-body .jumbo-buttons .jumbo-buttons-icon:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.jumbo-body .jumbo-buttons .jumbo-buttons-text {
+  font-size: 15px;
+}
+
+/*
+**
+*/
+
+.bulletpoints {
+  padding: 100px 150px;
+}
+
+.bulletpoints-header {
+  text-align: center;
+  margin: 0px auto 50px auto;
+  width: 50%;
+}
+
+.bulletpoints-header .title {
+  font-size: 35px;
+  margin-bottom: 10px;
+  font-weight: 400;
+}
+
+.bulletpoints-header .text {
+  font-size: 22px;
+  font-weight: 300;
+}
+
+.bulletpoints-body {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.bulletpoints .item {
+  width: 25%;
+  /* text-align: center; */
+}
+
+.bulletpoints .item-body {
+  padding: 25px;
+}
+
+.bulletpoints .item-icon {
+  font-size: 35px;
+  margin-bottom: 15px;
+  color: #111111;
+}
+
+.bulletpoints .item-title {
+  font-size: 22px;
+  font-weight: 400;
+  margin-bottom: 5px;
+  color: #111111;
+}
+
+.bulletpoints .item-text {
+  font-size: 16px;
+  font-weight: 300;
+  color: #333333;
+}
+
+/*
+**
+*/
+
+.statistics {
+  background-image: url('https://images.pexels.com/photos/1125273/pexels-photo-1125273.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top center;
+  padding: 25px 150px;
+  display: flex;
+  align-items: center;
+}
+
+.statistics-body {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.statistics-body .item {
+  flex-grow: 1;
+  color: white;
+  text-align: center;
+}
+
+.statistics-body .item-number {
+  font-size: 32px;
+  font-weight: 400;
+}
+
+.statistics-body .item-label {
+  font-size: 14px;
+  font-weight: 300;
+}
