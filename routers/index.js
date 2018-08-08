@@ -24,7 +24,7 @@ class ClientRouter {
     });
 
     // Join a conference
-    // this.router.get('/join/:token', (req, res) => res.sendFile(this.resolveViewPath('join')));
+    this.router.get('/join/:token', (req, res) => res.sendFile(this.resolveViewPath('join')));
 
     // Chat conference
     // this.router.get('/webchat/:token', (req, res) => res.sendFile(this.resolveViewPath('webchat')));
@@ -50,6 +50,9 @@ class ConferenceRouter {
 
     // Create a new conference
     this.router.post('/', this._app.controllers.conference.create.bind(this));
+
+    // Join a conference
+    this.router.post('/join/:token', this._app.controllers.conference.join.bind(this));
   }
 }
 

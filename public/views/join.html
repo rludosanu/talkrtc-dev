@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html ng-app="app">
+	<head>
+  	<!-- Title -->
+		<title>Create a conference</title>
+
+		<!-- Metas -->
+    <meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, user-scalable=no">
+
+		<!-- Vendor stylesheets -->
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans|Quicksand:300,400,500,700" rel="stylesheet" />
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
+
+		<!-- Custom stylesheets -->
+		<link rel="stylesheet" type="text/css" href="/public/stylesheets/global.css" />
+
+		<!-- Vendor scripts -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular.js"></script>
+	</head>
+	<body ng-controller="conferenceJoin">
+		<div class="navbar">
+		  <div class="navbar-container">
+		    <div class="navbar-brand">
+		      <a href="/">
+		        <span class="fa fa-cloud fa-fw"></span>
+		      </a>
+		    </div>
+		    <div class="navbar-nav">
+		      <ul>
+		        <li><a href="/">Premium</a></li>
+		      </ul>
+		    </div>
+		  </div>
+		</div>
+
+		<div class="page-header">
+			<h2>Join a conference</h2>
+			<p>Enter your access code and join your conference.</p>
+		</div>
+
+		<form ng-submit="submit()">
+			<div class="form-block">
+				<div class="form-block-body">
+					<input type="test" placeholder="Access code" ng-model="user.accessCode" />
+					<input type="submit" value="Join conference"/>
+				</div>
+			</div>
+		</form>
+
+		<script>
+		(function() {
+			var app = angular.module('app', []);
+
+			app.controller('conferenceJoin', function($scope, $http, $window, $location) {
+				var url = $location.absUrl().split('/');
+				var token = url[url.length - 1];
+
+				$scope.user = {
+          accessCode: ''
+				};
+
+				$scope.submit = function() {
+					$http({
+						method: 'POST',
+						url: 'http://127.0.0.1:3000/api/conference/join/' + token,
+		        data: {
+							accessCode: parseInt($scope.user.accessCode)
+						}
+					})
+					.then(result => {
+						console.log(result);
+		      })
+					.catch(error => {
+						console.error(error.data.error);
+					});
+				}
+			});
+		})();
+		</script>
+	</body>
+</html>

@@ -36,7 +36,8 @@ textarea {
   transition: border 0.5s;
 }
 
-button {
+button,
+input[type="submit"] {
   -webkit-transition: background 0.5s;
   transition: background 0.5s;
 }
@@ -48,7 +49,8 @@ textarea:hover {
   border: 1px solid #333333;
 }
 
-button:hover {
+button:hover,
+input[type="submit"]:hover {
   background: #333333;
   color: white;
 }
