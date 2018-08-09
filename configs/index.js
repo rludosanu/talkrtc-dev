@@ -15,5 +15,15 @@ module.exports = {
   },
   models: {
     sync: true
+  },
+  mail: {
+    service: 'gmail',
+    auth: {
+      user: 'talkrtc@gmail.com',
+      pass: '/R=r8/p\\'
+    }
+  },
+  jsonwebtoken: {
+    secret: '4ade8c6f3262cd49276'
   }
 };

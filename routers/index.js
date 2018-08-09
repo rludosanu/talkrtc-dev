@@ -1,10 +1,43 @@
 const express = require('express');
 const path = require('path');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 class ClientRouter {
   constructor(app) {
+    this._app = app;
+
+    // Check token validity
+    this.checkToken = function(req, res, next) {
+      var self = this;
+
+      console.log('[ INFO ] Checking token validity');
+      if (!req.cookies || !req.cookies.token) {
+        console.log('[ ERROR ] Token not found. Redirecting to /404.');
+        res.redirect('/404');
+      } else {
+        jwt.verify(req.cookies.token, self._app.configs.jsonwebtoken.secret, (error, decoded) => {
+          if (error) {
+            console.log('[ ERROR ] Token not decoded. Redirecting to /404.');
+            res.redirect('/404');
+          } else {
+            if (req.params.token == decoded.token) {
+              console.log('[ SUCCESS ] Matching tokens.');
+              next();
+            } else {
+              console.log('[ ERROR ] Unmatching tokens. Redirecting to /404.');
+              res.redirect('/404');
+            }
+          }
+        });
+      }
+    };
+
     // Create new router
     this.router = express.Router();
+
+    // Setup cookie parser
+    this.router.use(cookieParser());
 
     // Setup public directory path
     this.router.use('/public', express.static(path.join(__dirname, '../public')));
@@ -13,24 +46,13 @@ class ClientRouter {
     this.router.get('/', (req, res) => res.sendFile(this.resolveViewPath('index')));
 
     // Create a conference
-    this.router.get('/create/:type', (req, res) => {
-      let type = req.params.type;
-
-      if (['webchat', 'webcall'].indexOf(type) != -1) {
-        res.sendFile(this.resolveViewPath('create-' + type));
-      } else {
-        res.redirect('/404');
-      }
-    });
+    this.router.get('/create', (req, res) => res.sendFile(this.resolveViewPath('create')));
 
     // Join a conference
     this.router.get('/join/:token', (req, res) => res.sendFile(this.resolveViewPath('join')));
 
     // Chat conference
-    // this.router.get('/webchat/:token', (req, res) => res.sendFile(this.resolveViewPath('webchat')));
-
-    // Call conference
-    // this.router.get('/webcall/:token', (req, res) => res.sendFile(this.resolveViewPath('webcall')));
+    this.router.get('/webchat/:token', this.checkToken.bind(this), (req, res) => res.sendFile(this.resolveViewPath('webchat')));
 
     this.router.get('/404', (req, res) => res.sendFile(this.resolveViewPath('404')));
 
@@ -52,7 +74,7 @@ class ConferenceRouter {
     this.router.post('/', this._app.controllers.conference.create.bind(this));
 
     // Join a conference
-    this.router.post('/join/:token', this._app.controllers.conference.join.bind(this));
+    this.router.post('/join', this._app.controllers.conference.join.bind(this));
   }
 }
 

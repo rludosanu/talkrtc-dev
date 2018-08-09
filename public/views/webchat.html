@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html ng-app="app">
+	<head>
+  	<!-- Title -->
+		<title>TalkRTC Webchat</title>
+
+		<!-- Metas -->
+    <meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, user-scalable=no">
+
+		<!-- Vendor stylesheets -->
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans|Quicksand:300,400,500,700" rel="stylesheet" />
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
+
+		<!-- Custom stylesheets -->
+    <link rel="stylesheet" type="text/css" href="/public/stylesheets/global.css" />
+		<link rel="stylesheet" type="text/css" href="/public/stylesheets/webchat.css" />
+
+		<!-- Vendor scripts -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-cookies.js"></script>
+	</head>
+	<body ng-controller="webchat">
+		<div class="webchat">
+			<div class="webchat-header">
+				<div class="title">
+					TalkRTC Webchat
+				</div>
+			</div>
+			<div class="webchat-body">
+				<div class="webchat-body-container">
+					<div ng-repeat="message in messages" ng-class="{ 'message-left': message.type === 'recieved', 'message-right': message.type === 'sent', 'message-event': message.type === 'event' }" class="message">
+						<div class="message-content">
+							{{ message.content }}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="webchat-footer">
+				<div class="webchat-footer-reply">
+					<input type="text" placeholder="Type a message and hit enter to send..." ng-model="reply" ng-keypress="($event.which === 13) ? send() : null;" />
+				</div>
+				<div class="webchat-footer-send">
+					<span class="fa fa-fw fa-paper-plane" ng-click="send()"></span>
+				</div>
+			</div>
+		</div>
+
+		<script>
+		(function() {
+			var app = angular.module('app', ['ngCookies']);
+
+			app.controller('webchat', function($scope, $http, $window, $location, $cookies) {
+	      $scope.reply = '';
+	      $scope.messages = [{
+					type: 'recieved',
+					content: 'Hello Razvan !'
+				}, {
+					type: 'recieved',
+					content: 'How are you doing today ?'
+				}, {
+					type: 'sent',
+					content: 'Hi ! Good, thanks mate ;)'
+				}];
+
+	      $scope.send = function() {
+	        $scope.messages.push({ type: 'sent', content: $scope.reply });
+	        $scope.reply = '';
+	      };
+			});
+		})();
+		</script>
+	</body>
+</html>

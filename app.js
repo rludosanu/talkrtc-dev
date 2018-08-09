@@ -10,7 +10,6 @@ const Routers = require('./routers/index');
 class App {
 	constructor(configs) {
 		this.configs = configs;
-
 		this.server = express();
 		this.database = new Database(this);
 		this.models = new Models(this);

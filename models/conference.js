@@ -18,6 +18,16 @@ module.exports = class Conference {
 				required: true,
 				defaultValue: Sequelize.UUIDV4
 			},
+			type: {
+				type: Sequelize.ENUM('webchat', 'webcall'),
+				allowNull: false,
+				required: true
+			},
+			date: {
+				type: Sequelize.DATE,
+				allowNull: false,
+				required: true
+			},
 			hostEmail: {
 				type: Sequelize.STRING,
 				allowNull: false,
@@ -62,21 +72,6 @@ module.exports = class Conference {
 				type: Sequelize.INTEGER,
 				allowNull: false,
 				required: true
-			},
-			conferenceType: {
-				type: Sequelize.ENUM('webchat', 'webcall'),
-				allowNull: false,
-				required: true
-			},
-			conferenceDate: {
-				type: Sequelize.DATE,
-				allowNull: false,
-				required: true
-			},
-			conferenceMessage: {
-				type: Sequelize.TEXT,
-				allowNull: true,
-				defaultValue: null
 			}
 		});
 
