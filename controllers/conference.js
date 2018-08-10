@@ -83,21 +83,11 @@ module.exports = class Controller {
           subject: 'Conference invitation on TalkRTC',
           html: `
           <div style="color: #444444; font-size: 15px; width: 550px; margin: 45px 0px;">
-            <div style="font-size: 34px; margin-bottom: 25px;">
-              Hi ${guest} !
-            </div>
-            <div style="margin-bottom: 20px;">
-              You have been invited by <strong>${host}</strong> to join a TalkRTC conference on <strong>${date}</strong> at <strong>${time}</strong>.
-            </div>
-            <div style="margin-bottom: 20px;">
-              Your personnal access code is <strong>${datas.guestAccessCode}</strong>.
-            </div>
-            <div style="margin-bottom: 20px;">
-              Join your conference at <a href="http://127.0.0.1:3000/join/${conference.dataValues.token}">www.talkrtc.io/join/${conference.dataValues.token}</a>.
-            </div>
-            <div>
-              Enjoy your conference,<br /><strong>TalkRTC Team</strong>
-            </div>
+            <div style="font-size: 22px; margin-bottom: 25px;">Hi ${guest} !</div>
+            <div style="margin-bottom: 20px;">You have been invited by <strong>${host}</strong> to join a TalkRTC conference on <strong>${date}</strong> at <strong>${time}</strong></div>
+            <div style="margin-bottom: 20px;">Your personnal access code is <strong>${datas.guestAccessCode}</strong></div>
+            <div style="margin-bottom: 20px;">Join your conference at <a href="http://127.0.0.1:3000/join/${conference.dataValues.token}">www.talkrtc.io/join/${conference.dataValues.token}</a></div>
+            <div>Enjoy your conference,<br /><strong>TalkRTC Team</strong></div>
           </div>
           `
         });
@@ -109,21 +99,11 @@ module.exports = class Controller {
           subject: 'Conference confirmation on TalkRTC',
           html: `
           <div style="color: #444444; font-size: 15px; width: 550px; margin: 45px 0px;">
-            <div style="font-size: 34px; margin-bottom: 25px;">
-              Hi ${host} !
-            </div>
-            <div style="margin-bottom: 20px;">
-              You have invited <strong>${guest}</strong> to join a TalkRTC conference on <strong>${date}</strong> at <strong>${time}</strong>.
-            </div>
-            <div style="margin-bottom: 20px;">
-              Your access code is <strong>${datas.hostAccessCode}</strong>.
-            </div>
-            <div style="margin-bottom: 20px;">
-              Join your conference at <a href="http://127.0.0.1:3000/join/${conference.dataValues.token}">www.talkrtc.io/join/${conference.dataValues.token}</a>.
-            </div>
-            <div>
-              Enjoy your conference,<br /><strong>TalkRTC Team</strong>
-            </div>
+            <div style="font-size: 22px; margin-bottom: 25px;">Hi ${host} !</div>
+            <div style="margin-bottom: 20px;">You have invited <strong>${guest}</strong> to join a TalkRTC conference on <strong>${date}</strong> at <strong>${time}</strong></div>
+            <div style="margin-bottom: 20px;">Your access code is <strong>${datas.hostAccessCode}</strong></div>
+            <div style="margin-bottom: 20px;">Join your conference at <a href="http://127.0.0.1:3000/join/${conference.dataValues.token}">www.talkrtc.io/join/${conference.dataValues.token}</a></div>
+            <div>Enjoy your conference,<br /><strong>TalkRTC Team</strong></div>
           </div>
           `
         });

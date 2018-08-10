@@ -11,9 +11,25 @@
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   background: white;
   border-bottom: 1px solid #3B84F7;
+}
+
+.webchat-header .icon {
+  padding: 0px 15px;
+}
+
+.webchat-header .title {
+  padding: 0px 15px;
+}
+
+.webchat-header .actions {
+  padding: 0px 15px;
+}
+
+.webchat-header .actions .fa:hover {
+  cursor: pointer;
 }
 
 .webchat-body {

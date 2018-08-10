@@ -1,8 +1,11 @@
 const Sequelize = require('sequelize');
 
 module.exports = {
-  server: {
+  expressServer: {
     port: 3000
+  },
+  socketServer: {
+    port: 3001
   },
   database: {
     host: '192.168.99.100',

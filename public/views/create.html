@@ -6,7 +6,7 @@
 
 		<!-- Metas -->
     <meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, user-scalable=no">
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1" />
 
 		<!-- Vendor stylesheets -->
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans|Quicksand:300,400,500,700" rel="stylesheet" />
@@ -17,6 +17,7 @@
 
 		<!-- Vendor scripts -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/validate.js/0.12.0/validate.min.js"></script>
 	</head>
 	<body ng-controller="conferenceCreate">
 		<div class="navbar">
@@ -34,17 +35,13 @@
 		  </div>
 		</div>
 
-		<div class="page-header">
-			<h2>Create a webchat conference</h2>
-			<p>Start exchanging instant messages.</p>
-		</div>
-
 		<form ng-submit="submit()">
-			<div class="form-block">
-				<div class="form-block-title">
-					What kind of service do you need ?
+			<div ng-show="wizard.state == 1">
+				<div class="page-header">
+					<h2>Let's get started</h2>
+					<p>To create a new conference start by selecting the type of web app you need.</p>
 				</div>
-				<div class="form-block-body">
+				<div class="form-block">
 					<select ng-model="conference.type">
 						<option value="webchat" selected>Chat room</option>
 						<option value="webcall">Audio call</option>
@@ -52,11 +49,12 @@
 				</div>
 			</div>
 
-			<div class="form-block">
-				<div class="form-block-title">
-					Who are you ?
+			<div ng-show="wizard.state == 2">
+				<div class="page-header">
+					<h2>Tell us more about you...</h2>
+					<p>Personal informations are optional but they allow us to improve your prospect's experience.</p>
 				</div>
-				<div class="form-block-body">
+				<div class="form-block">
 					<input type="email" placeholder="Email address" ng-model="users.host.email" />
 					<input type="text" placeholder="First name (optional)" ng-model="users.host.firstName" />
 					<input type="text" placeholder="Last name (optional)" ng-model="users.host.lastName" />
@@ -64,33 +62,59 @@
 				</div>
 			</div>
 
-			<div class="form-block">
-				<div class="form-block-title">
-					Who is your guest ?
+			<div ng-show="wizard.state == 3">
+				<div class="page-header">
+					<h2>Who is you guest ?</h2>
+					<p>An email is great but a name is even better.</p>
 				</div>
-				<div class="form-block-body">
+				<div class="form-block">
 					<input type="email" placeholder="Email address" ng-model="users.guest.email" />
 					<input type="text" placeholder="First name (optional)" ng-model="users.guest.firstName" />
 					<input type="text" placeholder="Last name (optional)" ng-model="users.guest.lastName" />
 				</div>
 			</div>
 
-			<div class="form-block">
-				<div class="form-block-title">
-					When is it happening ?
+			<div ng-show="wizard.state == 4">
+				<div class="page-header">
+					<h2>When is it happening ?</h2>
+					<p>Setup the date and time of your conference.</p>
 				</div>
-				<div class="form-block-body">
+				<div class="form-block">
 					<input type="date" ng-model="conference.date" />
 					<input type="time" ng-model="conference.time" />
 				</div>
 			</div>
 
-			<div class="form-block">
-				<div class="form-block-body">
-					<input type="submit" value="Send invitation"/>
+			<div ng-show="wizard.state == 5">
+				<div class="page-header">
+					<h2>Conference created</h2>
+					<p>Your conference session has been created, check your emails for details. Thank you for using TalkRTC.</p>
+				</div>
+			</div>
+
+			<div ng-show="wizard.state == 6">
+				<div class="page-header">
+					<h2>Oops something went wrong</h2>
+					<p>An error occured during the process. Try again in a few moments or send us an email at support@talkrtc.io.</p>
 				</div>
 			</div>
 		</form>
+
+		<div class="form-wizard" ng-hide="wizard.state >= 5">
+			<div class="form-wizard-previous">
+				<button ng-click="wizard.changeState('previous')">Back</button>
+			</div>
+			<div class="form-wizard-dots">
+				<span class="fa fa-fw fa-circle" ng-class="{'active': wizard.state == 1}"></span>
+				<span class="fa fa-fw fa-circle" ng-class="{'active': wizard.state == 2}"></span>
+				<span class="fa fa-fw fa-circle" ng-class="{'active': wizard.state == 3}"></span>
+				<span class="fa fa-fw fa-circle" ng-class="{'active': wizard.state == 4}"></span>
+				<span class="fa fa-fw fa-circle" ng-class="{'active': wizard.state == 5}"></span>
+			</div>
+			<div class="form-wizard-next">
+				<button ng-click="wizard.changeState('next')">Next</button>
+			</div>
+		</div>
 
 		<script>
 		(function() {
@@ -104,7 +128,6 @@
 						s = s.toString();
 						return (s.length == 1) ? '0' + s : s;
 					}
-
 					var dt = {
 						y: d.getFullYear(),
 						m: f(d.getMonth() + 1),
@@ -115,6 +138,24 @@
 
 					return `${dt.y}-${dt.m}-${dt.d} ${dt.h}:${dt.i}:00`;
 				}
+
+				$scope.wizard = {};
+
+				$scope.wizard.state = 1;
+
+				$scope.wizard.changeState = function(state) {
+					if (state == 'previous') {
+						if ($scope.wizard.state > 1) {
+							$scope.wizard.state--;
+						}
+					} else if (state == 'next') {
+						if ($scope.wizard.state < 4) {
+							$scope.wizard.state++;
+						} else if ($scope.wizard.state == 4) {
+							$scope.submit();
+						}
+					}
+				};
 
 				$scope.users = {
 					host: {
@@ -137,7 +178,8 @@
 				};
 
 				$scope.submit = function() {
-					console.log($scope.users, $scope.conference);
+					console.log($scope.users);
+					console.log($scope.conference);
 
 					$http({
 						method: 'POST',
@@ -155,10 +197,10 @@
 						}
 					})
 					.then(result => {
-						console.log(result);
+						$scope.wizard.state = 5;
 		      })
 					.catch(error => {
-						console.error(error);
+						$scope.wizard.state = 6;
 					});
 				}
 			});

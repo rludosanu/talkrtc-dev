@@ -80,7 +80,7 @@
 }
 
 /*
-**
+** Bulletpoints
 */
 
 .bulletpoints {
@@ -135,41 +135,4 @@
   font-size: 16px;
   font-weight: 300;
   color: #333333;
-}
-
-/*
-**
-*/
-
-.statistics {
-  background-image: url('https://images.pexels.com/photos/1125273/pexels-photo-1125273.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: top center;
-  padding: 25px 150px;
-  display: flex;
-  align-items: center;
-}
-
-.statistics-body {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.statistics-body .item {
-  flex-grow: 1;
-  color: white;
-  text-align: center;
-}
-
-.statistics-body .item-number {
-  font-size: 32px;
-  font-weight: 400;
-}
-
-.statistics-body .item-label {
-  font-size: 14px;
-  font-weight: 300;
 }

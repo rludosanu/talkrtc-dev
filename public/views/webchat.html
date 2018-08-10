@@ -19,12 +19,17 @@
 		<!-- Vendor scripts -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-cookies.js"></script>
+		<script src="/public/scripts/socket.io.js"></script>
 	</head>
 	<body ng-controller="webchat">
 		<div class="webchat">
 			<div class="webchat-header">
-				<div class="title">
-					TalkRTC Webchat
+				<div class="icon">
+					<span class="fa fa-fw fa-circle-o-notch"></span>
+				</div>
+				<div class="title">TalkRTC Webchat</div>
+				<div class="actions">
+					<span class="fa fa-fw fa-times" ng-click="signout()"></span>
 				</div>
 			</div>
 			<div class="webchat-body">
@@ -50,23 +55,58 @@
 		(function() {
 			var app = angular.module('app', ['ngCookies']);
 
-			app.controller('webchat', function($scope, $http, $window, $location, $cookies) {
+			// Angular factory for socket.io defined as "socket"
+		  app.factory('socket', function ($rootScope) {
+		    var socket = io('http://127.0.0.1:3001/webchat');
+
+		    return {
+		      on: function (eventName, callback) {
+		        socket.on(eventName, function () {
+		          var args = arguments;
+		          $rootScope.$apply(function () {
+		            callback.apply(socket, args);
+		          });
+		        });
+		      },
+		      emit: function (eventName, data, callback) {
+		        socket.emit(eventName, data, function () {
+		          var args = arguments;
+		          $rootScope.$apply(function () {
+		            if (callback) {
+		              callback.apply(socket, args);
+		            }
+		          });
+		        })
+		      }
+		    };
+		  });
+
+			app.controller('webchat', function($scope, $http, $window, $location, $cookies, socket) {
 	      $scope.reply = '';
-	      $scope.messages = [{
-					type: 'recieved',
-					content: 'Hello Razvan !'
-				}, {
-					type: 'recieved',
-					content: 'How are you doing today ?'
-				}, {
-					type: 'sent',
-					content: 'Hi ! Good, thanks mate ;)'
-				}];
+	      $scope.messages = [];
 
 	      $scope.send = function() {
 	        $scope.messages.push({ type: 'sent', content: $scope.reply });
+					socket.emit('send-message', $scope.reply);
 	        $scope.reply = '';
 	      };
+
+				$scope.signout = function() {
+					$cookies.remove('token');
+					$window.location.href = '/';
+				};
+
+				socket.on('recieve-message', function(message) {
+					$scope.messages.push({ type: 'recieved', content: message });
+				});
+
+				socket.on('event-message', function(message) {
+					$scope.messages.push({ type: 'event', content: message });
+				});
+
+				socket.on('disconnect', function() {
+					$scope.messages.push({ type: 'event', content: 'You have been idle too long. Refresh the page to reconnect.' });
+				});
 			});
 		})();
 		</script>

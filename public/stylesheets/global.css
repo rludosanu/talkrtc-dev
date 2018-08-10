@@ -104,6 +104,10 @@ a {
   margin: 0px 50px 0px 0px;
 }
 
+.navbar-nav ul li a:last-of-type {
+  margin: 0px;
+}
+
 .navbar-nav ul li a:hover,
 .navbar-nav ul li a.active {
   color: #3B84F7;
@@ -137,8 +141,16 @@ a {
   margin: 10px 0px;
 }
 
+.page-header a {
+  color: #3B84F7;
+}
+
+.page-header a:hover {
+  cursor: pointer;
+}
+
 /*
-** Forms
+** Form
 */
 
 .form-block {
@@ -153,6 +165,59 @@ a {
   margin-bottom: 10px;
 }
 
-.form-block-body {
+.form-block-button {
+  margin-top: 10px;
+}
 
+/*
+** Form wizard
+*/
+
+.form-wizard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 500px;
+  margin: auto;
+  border-top: 1px solid #EFEEEC;
+  padding: 10px 0px;
+}
+
+.form-wizard-previous button,
+.form-wizard-next button {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Quicksand';
+  font-size: 14px;
+  border-radius: 6px;
+  padding: 10px 30px;
+  outline: none;
+}
+
+.form-wizard-previous button:hover,
+.form-wizard-next button:hover {
+  cursor: pointer;
+}
+
+.form-wizard-previous button {
+  color: #B3B2B0;
+  border: 1px solid #EFEEEC;
+  background: white;
+}
+
+.form-wizard-next button {
+  color: white;
+  border: 1px solid #3B84F7;
+  background: #3B84F7;
+}
+
+.form-wizard-dots {
+  flex-grow: 1;
+  text-align: center;
+  color: #EFEEEC;
+  font-size: 12px;
+}
+
+.form-wizard-dots .active {
+  color: #3B84F7;
 }
