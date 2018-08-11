@@ -2,8 +2,8 @@ const app = require('express')();
 const jwt = require('jsonwebtoken');
 
 class SocketServer {
-	constructor(app) {
-		this._app = app;
+	constructor(configs) {
+		this.configs = configs;
 
 		this.httpServer = require('http').Server(app);
 		this.io = require('socket.io')(this.httpServer);
@@ -23,14 +23,16 @@ class SocketServer {
 	}
 
 	start() {
-		this.httpServer.listen(this._app.configs.socketServer.port, (error) => {
+		this.httpServer.listen(this.configs.socketServer.port, (error) => {
 			if (error) {
 				console.log(error);
 				process.exit(1);
 			}
-			console.log('Socket server is running on port ' + this._app.configs.socketServer.port);
+			console.log('Socket server is running on port ' + this.configs.socketServer.port);
 		});
 	}
 }
 
-module.exports = SocketServer;
+module.exports = function(configs) {
+	return new SocketServer(configs);
+};
