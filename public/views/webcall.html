@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html ng-app="app">
+	<head>
+  	<!-- Title -->
+		<title>TalkRTC Webcall</title>
+
+		<!-- Metas -->
+    <meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, user-scalable=no">
+
+		<!-- Vendor stylesheets -->
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans|Quicksand:300,400,500,700" rel="stylesheet" />
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
+
+		<!-- Custom stylesheets -->
+    <link rel="stylesheet" type="text/css" href="/public/stylesheets/global.css" />
+		<link rel="stylesheet" type="text/css" href="/public/stylesheets/webcall.css" />
+
+		<!-- Vendor scripts -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-cookies.js"></script>
+		<script src="/public/scripts/socket.io.js"></script>
+	</head>
+	<body ng-controller="webcall">
+		<div class="webcall">
+			<div class="webcall-container">
+				<div class="keypad">
+					<!-- Keypad infos -->
+					<div class="keypad-infos">
+						<div class="keypad-title">{{ keypad.title }}</div>
+						<div class="keypad-secret">{{ keypad.stars }}</div>
+					</div>
+
+					<!-- Keypad numeric pad -->
+					<div class="keypad-pad">
+						<div class="keypad-row">
+							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(1)">1</div></div>
+							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(2)">2</div></div>
+							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(3)">3</div></div>
+						</div>
+						<div class="keypad-row">
+							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(4)">4</div></div>
+							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(5)">5</div></div>
+							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(6)">6</div></div>
+						</div>
+						<div class="keypad-row">
+							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(7)">7</div></div>
+							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(8)">8</div></div>
+							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(9)">9</div></div>
+						</div>
+						<div class="keypad-row">
+							<div class="keypad-item"><div class="keypad-number">&nbsp;</div></div>
+							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(0)">0</div></div>
+							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.reset()">C</div></div>
+						</div>
+					</div>
+				</div>
+
+				<div class="call">
+		      <div class="call-infos">
+						<div class="infos-username"></div>
+						<div class="infos-state">{{ call.infos.state }}</div>
+						<div class="infos-timer">{{ call.infos.timer }}</div>
+					</div>
+					<div class="call-actions">
+						<div class="action-row">
+							<div class="action-item"><div id="call-mute" class="action-button" ng-click="callMute()"><span class="fa fa-fw fa-microphone"></span></div></div>
+							<div class="action-item hide"><div id="call-unmute" class="action-button" ng-click="callUnmute()"><span class="fa fa-fw fa-microphone-slash"></span></div></div>
+							<div class="action-item"><div id="call-settings" class="action-button" ng-click="callSettings()"><span class="fa fa-fw fa-cog"></span></div></div>
+						</div>
+						<div class="action-row">
+							<div class="action-item"><div id="call-reject" class="action-button" ng-click="callReject()"><span class="fa fa-fw fa-times"></span></div></div>
+							<div class="action-item"><div id="call-answer" class="action-button" ng-click="callAnswer()"><span class="fa fa-fw fa-check"></span></div></div>
+						</div>
+						<div class="action-row">
+							<div class="action-item"><div id="call-make" class="action-button" ng-click="callMake()"><span class="fa fa-fw fa-phone"></span></div></div>
+							<div class="action-item hide"><div id="call-hangup" class="action-button" ng-click="callHangup()"><span class="fa fa-fw fa-phone"></span></div></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+		(function() {
+			var app = angular.module('app', ['ngCookies']);
+
+			// Angular factory for socket.io defined as "socket"
+		  app.factory('socket', function ($rootScope) {
+		    var socket = io('http://127.0.0.1:3001/webcall');
+
+		    return {
+		      on: function (eventName, callback) {
+		        socket.on(eventName, function () {
+		          var args = arguments;
+		          $rootScope.$apply(function () {
+		            callback.apply(socket, args);
+		          });
+		        });
+		      },
+		      emit: function (eventName, data, callback) {
+		        socket.emit(eventName, data, function () {
+		          var args = arguments;
+		          $rootScope.$apply(function () {
+		            if (callback) {
+		              callback.apply(socket, args);
+		            }
+		          });
+		        })
+		      }
+		    };
+		  });
+
+			app.controller('webcall', function($scope, $http, $window, $location, $cookies, $interval, socket) {
+				$scope.keypad = {
+					secret: '',
+					stars: '\u00A0',
+					title: 'Enter your access code'
+				};
+
+				$scope.keypad.reset = function() {
+					$scope.keypad.title = 'Enter your access code';
+					$scope.keypad.stars = '\u00A0';
+					$scope.keypad.secret = '';
+				};
+
+				$scope.keypad.click = function(num) {
+					if ($scope.keypad.secret.length == 0) {
+						$scope.keypad.reset();
+					}
+					$scope.keypad.secret += num;
+					$scope.keypad.stars += '*';
+					if ($scope.keypad.secret.length == 6) {
+						if ($scope.keypad.secret == '094463') {
+							$scope.keypad.title = 'Valid access code';
+							$scope.keypad.secret = '';
+						} else {
+							$scope.keypad.title = 'Invalid access code';
+							$scope.keypad.secret = '';
+						}
+					}
+				};
+
+				/*
+				** Call object
+				*/
+				$scope.call = {};
+
+				$scope.call.state = {};
+
+				/*
+				** Call state
+				*/
+				$scope.call.state.state = 'idle';
+
+				$scope.call.state.updateState = function(state) {
+					switch(state) {
+						// At this point nothing going on. You can either make or recieve a call.
+						case 'idle':
+							break;
+
+						// Waiting for the user on the other end to accept the call
+						case 'trying':
+							break;
+
+						// The user on the other end is trying to reach us
+						case 'ringing':
+							break;
+
+						// The Webrtc is trying to connect both ends
+						case 'connecting':
+							break;
+
+						// The call is actually ongoing
+						case 'ongoing':
+							break;
+
+						// The call has ended without errors
+						case 'ended':
+							break;
+
+						// The call failed at some point
+						case 'failed':
+							break;
+
+						// The call has been rejected by the user on the other end
+						case 'rejected':
+							break;
+
+						// Idle by default
+						default:
+							break;
+					}
+				}
+
+				/*
+				** Call informations
+				*/
+				$scope.call.infos.state = 'Click to make a call';
+				$scope.call.infos.timer = '00:00:00';
+
+				/*
+				** Call timer
+				*/
+				$scope.call.timer = {};
+
+				// Counter
+				$scope.call.timer.timer = 0;
+
+				// Handle for refresh loop
+				$scope.call.timer.handle = null;
+
+				// Convert the counter to human readable format
+				$scope.call.timer.convertToHMS = function(timer) {
+			    var sec_num = parseInt(timer, 10);
+			    var hours = Math.floor(sec_num / 3600);
+			    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+			    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+			    if (hours < 10)
+						hours = '0' + hours;
+			    if (minutes < 10)
+						minutes = '0' + minutes;
+			    if (seconds < 10)
+						seconds = '0' + seconds;
+			    return hours + ':' + minutes + ':' + seconds;
+				}
+
+				// Start the refresh loop
+				$scope.call.timer.start = function() {
+					if ($scope.call.timer.handle) return ;
+					$scope.call.timer.handle = $interval(function() {
+						$scope.call.timer.timer += 1;
+						$scope.call.infos.timer = $scope.call.timer.convertToHMS($scope.call.timer.timer);
+					}, 1000);
+				};
+
+				// Stop the refresh loop
+				$scope.call.timer.stop = function() {
+					if (!$scope.call.timer.handle) return ;
+					$interval.cancel($scope.call.timer.handle);
+					$scope.call.timer.handle = null;
+					$scope.call.timer.timer = 0;
+					$scope.call.infos.timer = '00:00:00';
+				};
+
+				$scope.callMute = function() {
+					console.log('Muting call');
+				};
+
+				$scope.callUnmute = function() {
+					console.log('Unmuting call');
+				};
+
+				$scope.callSettings = function() {
+					console.log('Call settings');
+				};
+
+				$scope.callReject = function() {
+					console.log('Rejecting call');
+				};
+
+				$scope.callAnswer = function() {
+					console.log('Answering call');
+				};
+
+				$scope.callMake = function() {
+					console.log('Making call');
+				};
+
+				$scope.callHangup = function() {
+					console.log('Hanging up call');
+				};
+			});
+		})();
+		</script>
+	</body>
+</html>

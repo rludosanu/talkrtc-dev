@@ -54,9 +54,13 @@ class ClientRouter {
     // Chat conference
     this.router.get('/webchat/:token', this.checkToken.bind(this), (req, res) => res.sendFile(this.resolveViewPath('webchat')));
 
-    this.router.get('/404', (req, res) => res.sendFile(this.resolveViewPath('404')));
+    // Call conference
+    this.router.get('/webcall', (req, res) => res.sendFile(this.resolveViewPath('webcall')));
 
     // Page not found
+    this.router.get('/404', (req, res) => res.sendFile(this.resolveViewPath('404')));
+
+    // Redirect any other request to /404
     this.router.get('/*', (req, res) => res.redirect('/404'));
   }
 
