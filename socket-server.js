@@ -74,16 +74,28 @@ class SocketServer {
 		** Webcall app namespace
 		*/
 		self.webcall.on('connection', function(socket) {
-			console.log('[ webcall ] [ ' + socket.id + ' ] New socket connection. Checking token...');
+			console.log('[ webcall ] [ ' + socket.id + ' ] New socket connection.');
 
 			socket.join('webcall-room');
 
-			socket.on('call-make', function(socket) {
+			socket.on('call-invite', function() {
+				console.log('[ webcall ] [ ' + socket.id + ' ] Inviting client to call.');
 				socket.to('webcall-room').emit('call-invite');
 			});
 
-			socket.on('call-cancel', function(socket) {
-				socket.to('webcall-room').emit('call-cancel');
+			socket.on('call-hangup', function() {
+				console.log('[ webcall ] [ ' + socket.id + ' ] Hanging up call.');
+				socket.to('webcall-room').emit('call-hangup');
+			});
+
+			socket.on('call-answer', function() {
+				console.log('[ webcall ] [ ' + socket.id + ' ] Answering call.');
+				socket.to('webcall-room').emit('call-answer');
+			});
+
+			socket.on('call-reject', function() {
+				console.log('[ webcall ] [ ' + socket.id + ' ] Reject call.');
+				socket.to('webcall-room').emit('call-reject');
 			});
 		});
 	}

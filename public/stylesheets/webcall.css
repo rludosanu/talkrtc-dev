@@ -104,6 +104,16 @@
   font-size: 16px;
 }
 
+.webcall .call-infos .infos-rating {
+  font-size: 24px;
+  color: white;
+}
+
+.webcall .call-infos .infos-rating .fa:hover {
+  color: #4CC417;
+  cursor: pointer;
+}
+
 .webcall .call-actions .action-row {
   display: flex;
   justify-content: center;

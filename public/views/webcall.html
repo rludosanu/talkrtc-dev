@@ -60,21 +60,63 @@
 		      <div class="call-infos">
 						<div class="infos-username"></div>
 						<div class="infos-state">{{ call.infos.state }}</div>
-						<div class="infos-timer">{{ call.infos.timer }}</div>
+						<div class="infos-timer" ng-show="call.state.state === 'ongoing'">{{ call.infos.timer }}</div>
+						<div class="infos-rating" ng-show="call.state.state === 'ended'">
+							<span class="fa fa-fw fa-star" ng-click="callRate(1)"></span>
+							<span class="fa fa-fw fa-star" ng-click="callRate(2)"></span>
+							<span class="fa fa-fw fa-star" ng-click="callRate(3)"></span>
+							<span class="fa fa-fw fa-star" ng-click="callRate(4)"></span>
+							<span class="fa fa-fw fa-star" ng-click="callRate(5)"></span>
+						</div>
 					</div>
 					<div class="call-actions">
-						<div class="action-row">
-							<div class="action-item"><div id="call-mute" class="action-button" ng-click="callMute()"><span class="fa fa-fw fa-microphone"></span></div></div>
-							<div class="action-item hide"><div id="call-unmute" class="action-button" ng-click="callUnmute()"><span class="fa fa-fw fa-microphone-slash"></span></div></div>
-							<div class="action-item"><div id="call-settings" class="action-button" ng-click="callSettings()"><span class="fa fa-fw fa-cog"></span></div></div>
+						<div class="action-row" ng-show="call.state.state === 'ongoing'">
+							<!-- Mute call -->
+							<div class="action-item">
+								<div id="call-mute" class="action-button" ng-click="callMute()">
+									<span class="fa fa-fw fa-microphone"></span>
+								</div>
+							</div>
+							<!-- Unmute call -->
+							<div class="action-item hide">
+								<div id="call-unmute" class="action-button" ng-click="callUnmute()">
+									<span class="fa fa-fw fa-microphone-slash"></span>
+								</div>
+							</div>
+							<!-- Settings -->
+							<div class="action-item">
+								<div id="call-settings" class="action-button" ng-click="callSettings()">
+									<span class="fa fa-fw fa-cog"></span>
+								</div>
+							</div>
+						</div>
+						<div class="action-row" ng-show="call.state.state === 'ringing'">
+							<!-- Reject call -->
+							<div class="action-item">
+								<div id="call-reject" class="action-button" ng-click="callReject()">
+									<span class="fa fa-fw fa-times"></span>
+								</div>
+							</div>
+							<!-- Answer call -->
+							<div class="action-item">
+								<div id="call-answer" class="action-button" ng-click="callAnswer()">
+									<span class="fa fa-fw fa-check"></span>
+								</div>
+							</div>
 						</div>
 						<div class="action-row">
-							<div class="action-item"><div id="call-reject" class="action-button" ng-click="callReject()"><span class="fa fa-fw fa-times"></span></div></div>
-							<div class="action-item"><div id="call-answer" class="action-button" ng-click="callAnswer()"><span class="fa fa-fw fa-check"></span></div></div>
-						</div>
-						<div class="action-row">
-							<div class="action-item"><div id="call-make" class="action-button" ng-click="callMake()"><span class="fa fa-fw fa-phone"></span></div></div>
-							<div class="action-item hide"><div id="call-hangup" class="action-button" ng-click="callHangup()"><span class="fa fa-fw fa-phone"></span></div></div>
+							<!-- Make call -->
+							<div class="action-item" ng-show="call.state.state === 'idle'">
+								<div id="call-make" class="action-button" ng-click="callMake()">
+									<span class="fa fa-fw fa-phone"></span>
+								</div>
+							</div>
+							<!-- Hangup call -->
+							<div class="action-item" ng-show="call.state.state === 'calling' || call.state.state === 'connecting' || call.state.state === 'ongoing'">
+								<div id="call-hangup" class="action-button" ng-click="callHangup()">
+									<span class="fa fa-fw fa-phone"></span>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -112,6 +154,10 @@
 		  });
 
 			app.controller('webcall', function($scope, $http, $window, $location, $cookies, $interval, socket) {
+				/*
+				** Keypad access code
+				*/
+
 				$scope.keypad = {
 					secret: '',
 					stars: '\u00A0',
@@ -157,38 +203,64 @@
 					switch(state) {
 						// At this point nothing going on. You can either make or recieve a call.
 						case 'idle':
+							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "idle"');
+							$scope.call.infos.state = 'Click to make call';
+							$scope.call.state.state = state;
 							break;
 
 						// Waiting for the user on the other end to accept the call
-						case 'trying':
+						case 'calling':
+							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "calling"');
+							$scope.call.infos.state = 'Calling...';
+							$scope.call.state.state = 'calling';
 							break;
 
 						// The user on the other end is trying to reach us
 						case 'ringing':
+							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "ringing"');
+							$scope.call.infos.state = 'Ringing...';
+							$scope.call.state.state = 'ringing';
 							break;
 
 						// The Webrtc is trying to connect both ends
 						case 'connecting':
+							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "connecting"');
+							$scope.call.infos.state = 'Connecting...';
+							$scope.call.state.state = 'connecting';
 							break;
 
 						// The call is actually ongoing
 						case 'ongoing':
+							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "ongoing"');
+							$scope.call.state.state = 'ongoing';
 							break;
 
 						// The call has ended without errors
 						case 'ended':
+							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "ended"');
+							$scope.call.infos.state = 'Call ended. Please rate your call.';
+							$scope.call.state.state = 'ended';
 							break;
 
 						// The call failed at some point
 						case 'failed':
+							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "failed"');
+							$scope.call.infos.state = 'Call failed, try again.';
+							$scope.call.state.state = 'idle';
 							break;
 
 						// The call has been rejected by the user on the other end
 						case 'rejected':
+							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "rejected"');
+							$scope.call.infos.state = 'Call rejected. Try again.';
+							$scope.call.state.state = 'idle';
 							break;
 
 						// Idle by default
 						default:
+							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "idle"');
+							$scope.call.infos.state = 'Click to make call';
+							$scope.call.state.state = 'idle';
 							break;
 					}
 				}
@@ -196,8 +268,10 @@
 				/*
 				** Call informations
 				*/
+				$scope.call.infos = {};
 				$scope.call.infos.state = 'Click to make a call';
 				$scope.call.infos.timer = '00:00:00';
+				$scope.call.infos.rate = 0;
 
 				/*
 				** Call timer
@@ -244,33 +318,84 @@
 					$scope.call.infos.timer = '00:00:00';
 				};
 
-				$scope.callMute = function() {
-					console.log('Muting call');
+				/*
+				** Call actions
+				*/
+
+				// Rate call
+				$scope.callRate = function(rate) {
+					console.log('[ ACTION ] Rating call (' + rate + ')');
+					$scope.call.infos.rate = rate;
+					$scope.call.state.updateState('idle');
 				};
 
-				$scope.callUnmute = function() {
-					console.log('Unmuting call');
-				};
-
-				$scope.callSettings = function() {
-					console.log('Call settings');
-				};
-
-				$scope.callReject = function() {
-					console.log('Rejecting call');
-				};
-
-				$scope.callAnswer = function() {
-					console.log('Answering call');
-				};
-
+				// Send a call invitation
 				$scope.callMake = function() {
-					console.log('Making call');
+					console.log('[ ACTION ] Making call...');
+					$scope.call.state.updateState('calling');
+					socket.emit('call-invite');
 				};
 
+				// Hangup call
 				$scope.callHangup = function() {
-					console.log('Hanging up call');
+					console.log('[ ACTION ] Hanging up call...');
+					$scope.call.state.updateState('ended');
+					socket.emit('call-hangup');
 				};
+
+				// Mute call
+				$scope.callMute = function() {
+					console.log('[ ACTION ] Muting call...');
+					$scope.call.state.updateState('ended');
+				};
+
+				// Unmute call
+				$scope.callUnmute = function() {
+					console.log('[ ACTION ] Unmuting call...');
+				};
+
+				// Setting for call
+				$scope.callSettings = function() {
+					console.log('[ ACTION ] Call settings...');
+				};
+
+				// Answer call
+				$scope.callAnswer = function() {
+					console.log('[ ACTION ] Answering call...');
+					$scope.call.state.updateState('connecting');
+					socket.emit('call-answer');
+				};
+
+				// Reject call
+				$scope.callReject = function() {
+					console.log('[ ACTION ] Rejecting call...');
+					$scope.call.state.updateState('idle');
+					socket.emit('call-reject');
+				};
+
+				/*
+				** Incoming messages from socket
+				*/
+
+				// Call is incoming
+				socket.on('call-invite', function() {
+					$scope.call.state.updateState('ringing');
+				});
+
+				// Call has been answered
+				socket.on('call-answer', function() {
+					$scope.call.state.updateState('connecting');
+				});
+
+				// Call has been rejected
+				socket.on('call-reject', function() {
+					$scope.call.state.updateState('rejected');
+				});
+
+				// Call has been hanged up
+				socket.on('call-hangup', function() {
+					$scope.call.state.updateState('ended');
+				});
 			});
 		})();
 		</script>
