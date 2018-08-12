@@ -59,9 +59,9 @@
 				<div class="call">
 		      <div class="call-infos">
 						<div class="infos-username"></div>
-						<video id="local-video" muted="muted" width="320px" height="240px" autoplay></video>
-						<video id="remote-video" width="320px" height="240px" autoplay></video>
-						<div class="infos-state">{{ call.infos.state }}</div>
+						<video id="local-video" muted="muted" width="320px" height="240px" style="display: none;"></video>
+						<video id="remote-video" width="320px" height="240px" style="display: none;"></video>
+						<div class="infos-state" ng-hide="call.state.state === 'ongoing'">{{ call.infos.state }}</div>
 						<div class="infos-timer" ng-show="call.state.state === 'ongoing'">{{ call.infos.timer }}</div>
 						<div class="infos-rating" ng-show="call.state.state === 'ended'">
 							<span class="fa fa-fw fa-star" ng-click="callRate(1)"></span>
@@ -158,282 +158,208 @@
 			app.controller('webcall', function($scope, $http, $window, $location, $cookies, $interval, socket) {
 				window.URL = window.URL || window.webkitURL || window.mozURL;
 
-				/*
-				** RTC object
-				*/
-				var rtc = {
-					options: {
-						iceServers: [{
-							url: 'stun:stun1.l.google.com:19302'
-						}],
-						mediaConstraints: {
-							audio: true,
-							video: false
-						}
-					},
-					localVideo: document.getElementById('local-video'),
-					remoteVideo: document.getElementById('remote-video'),
-					peerConnection: null
-				};
+				var pc = null;
+				var localVideo = document.getElementById('local-video');
+				var remoteVideo = document.getElementById('remote-video');
+				var iceServers = [{ url: 'stun:stun1.l.google.com:19302' }];
+				var mediaConstraints = { audio: true, video: false };
+				var ringtone = new Audio('/public/sounds/ringtone.mp3');
 
-				/*
-				** Create a new RTCPeerConnection object and attach handlers to it
-				*/
-				rtc.createRTCPeerConnection = function() {
-					console.log('"createRTCPeerConnection" => Creating new RTCPeerConnection object');
+				function createRTCPeerConnection(role = 'caller') {
+					console.log('[ WEBRTC ] Creating new RTCPeerConnection object');
 
-					/*
-					** Check if peerConnection object exists
-					*/
-					if (rtc.peerConnection) {
-						console.error('"createRTCPeerConnection" => RTCPeerConnection object already exists');
+					if (pc) {
+						console.error('[ WEBRTC ] RTCPeerConnection object already exists');
 						return false;
 					}
 
-					/*
-					** Create new peerConnection object
-					*/
-					rtc.peerConnection = new RTCPeerConnection({ iceServers: rtc.options.iceServers });
-					console.info(rtc.peerConnection);
+					pc = new RTCPeerConnection({ iceServers: iceServers });
 
-					/*
-					** The local ICE layer calls your icecandidate event handler,
-					** when it needs you to transmit an ICE candidate to the other peer,
-					** through your signaling server.
-					*/
-					rtc.peerConnection.onicecandidate = rtc.handleICECandidateEvent;
-
-					/*
-					** Let you know when a remote stream has been added to your connection
-					*/
-					rtc.peerConnection.onaddstream = rtc.handleAddStreamEvent;
-
-					/*
-					** Let you know when the remote stream removes a stream from your connection
-					*/
-					rtc.peerConnection.onremovestream = rtc.handleRemoveStreamEvent;
-
-					/*
-					** Let you know about changes to the state of the ICE connection.
-					** This can help you know when the connection has failed, or been lost.
-					*/
-					rtc.peerConnection.oniceconnectionstatechange = rtc.handleICEConnectionStateChangeEvent;
-
-					/*
-					** When the ICE agent's process of collecting candidates shifts,
-					** from one state to another
-					*/
-					rtc.peerConnection.onicegatheringstatechange = rtc.handleICEGatheringStateChangeEvent;
-
-					//
-					rtc.peerConnection.onsignalingstatechange = rtc.handleSignalingStateChangeEvent;
-
-					/*
-					** This function is called whenever the WebRTC infrastructure needs you to
-					** start the session negotiation process anew. Its job is to create and send
-					** an offer, to the callee, asking it to connect with us
-					*/
-					rtc.peerConnection.onnegotiationneeded = rtc.handleNegotiationNeededEvent;
+					pc.onicecandidate = handleICECandidateEvent;
+					pc.onaddstream = handleAddStreamEvent;
+					pc.onremovestream = handleRemoveStreamEvent;
+					pc.oniceconnectionstatechange = handleICEConnectionStateChangeEvent;
+					pc.onicegatheringstatechange = handleICEGatheringStateChangeEvent;
+					pc.onsignalingstatechange = handleSignalingStateChangeEvent;
+					pc.onnegotiationneeded = (role == 'caller') ? handleNegotiationNeededEvent : null;
 
 					return true;
 				};
 
-				/*
-				** Request for local microphone and camera access and attach stream to localVideo tag
-				*/
-				rtc.handleGetUserMedia = function() {
-					console.log('"handleGetUserMedia" => Creating a new call...');
+				function handleGetUserMedia() {
+					console.log('[ WEBRTC ] Accessing microphone and camera');
 
-					/*
-					** Check for an existing RTCPeerConnection object or create a new one
-					*/
-					if (!rtc.createRTCPeerConnection()) {
-						return false;
-					}
-
-					/*
-					** Request access to local microphone and camera
-					*/
-					console.log('"handleGetUserMedia" => Getting local UserMedia...');
-					navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+					navigator.mediaDevices.getUserMedia(mediaConstraints)
 					.then(function(stream) {
-						console.info(stream);
+						console.log('[ WEBRTC ] Adding stream to local video');
+						if ('srcObject' in localVideo) {
+					    localVideo.srcObject = stream;
+					  } else {
+					    localVideo.src = window.URL.createObjectURL(stream);
+					  }
+					  localVideo.onloadedmetadata = function(e) {
+					    localVideo.play();
+					  };
 
-						console.log('"handleGetUserMedia" => Adding stream to local video...');
-						rtc.localVideo.src = window.URL.createObjectURL(stream);
-						rtc.localVideo.play();
-
-						/*
-						** We add the stream to the RTCPeerConnection
-						** This stream needs adding to the connection before ICE negotiation can occur,
-						** since the ICE layer will use information from the stream when negotiating the connection
-						*/
-						console.log('"handleGetUserMedia" => Adding tracks to RTCPeerConnection object');
-						stream.getTracks().forEach(track => {
-							console.info(track);
-							rtc.peerConnection.addTrack(track, stream);
-						});
-					})
-					.catch(error => {
-						console.error(error);
-					});
-				};
-
-				/*
-				** Remove streams from local and remote video
-				** Close RTCPeerConnection
-				*/
-				rtc.destroyRTCPeerConnection = function() {
-					if (rtc.localVideo.srcObject) {
-						console.log('"destroyRTCPeerConnection" => Stopping local video tracks...');
-						rtc.localVideo.srcObject.getTracks().forEach(track => {
-							console.info(track);
-							track.stop();
-						});
-						rtc.localVideo.srcObject = null;
-					}
-
-					if (rtc.remoteVideo.srcObject) {
-						console.log('"destroyRTCPeerConnection" => Stopping remote video tracks...');
-						rtc.remoteVideo.srcObject.getTracks().forEach(track => {
-							console.info(track);
-							track.stop();
-						});
-						rtc.remoteVideo.srcObject = null;
-					}
-
-					if (rtc.peerConnection) {
-						console.log('"destroyRTCPeerConnection" => Closing RTCPeerConnection...');
-						rtc.peerConnection.close();
-						rtc.peerConnection = null;
-					}
-				};
-
-				/*
-				** Once the caller has created its RTCPeerConnection, created a media stream,
-				** and added it to the connection the browser will activate a negotiationneeded
-				** event when it's ready for a connection with another peer
-				*/
-				rtc.handleNegotiationNeededEvent = function() {
-					console.log('"handleNegotiationNeededEvent" => Creating local sdp description');
-
-					rtc.peerConnection.createOffer()
-					.then(function(offer) {
-						console.info(offer);
-						return rtc.peerConnection.setLocalDescription(offer);
-					})
-					.then(function() {
-						console.log('"handleNegotiationNeededEvent" => Sending local sdp description');
-						socket.emit('webrtc-offer', rtc.peerConnection.localDescription);
+						console.log('[ WEBRTC ] Adding tracks/stream to peer connection');
+						stream.getTracks().forEach(track => pc.addTrack(track, stream));
 					})
 					.catch(error => console.error(error));
 				};
 
-				/*
-				** Sending ICE candidate to peer
-				*/
-				rtc.handleICECandidateEvent = function(event) {
-					console.log('"handleICECandidateEvent" => Sending ICE candidate to peer...');
-					console.info(event);
+				function destroyRTCPeerConnection() {
+					console.log('localVideo', localVideo.srcObject);
+					console.log('remoteVideo', remoteVideo.srcObject);
+					console.log(pc);
+					if (localVideo.srcObject) {
+						console.log('[ WEBRTC ] Stopping local tracks');
+						localVideo.srcObject.getTracks().forEach(track => track.stop());
+						localVideo.srcObject = null;
+					}
 
-					if (event && event.candidate) {
+					if (remoteVideo.srcObject) {
+						console.log('[ WEBRTC ] Stopping remote tracks');
+						remoteVideo.srcObject.getTracks().forEach(track => track.stop());
+						remoteVideo.srcObject = null;
+					}
+
+					if (pc) {
+						console.log('[ WEBRTC ] Closing peer connection');
+						pc.close();
+						pc = null;
+					}
+				};
+
+				function handleNegotiationNeededEvent() {
+					console.log('[ WEBRTC ] Creating offer');
+					pc.createOffer()
+					.then(function(offer) {
+						console.log('[ WEBRTC ] Saving local session description');
+						return pc.setLocalDescription(offer);
+					})
+					.then(function() {
+						console.log('[ WEBRTC ] Sending offer');
+						socket.emit('webrtc-offer', pc.localDescription);
+					})
+					.catch(error => console.error(error));
+				};
+
+				function handleICECandidateEvent(event) {
+					console.log('[ WEBRTC ] Sending ICE candidate');
+					if (event.candidate) {
 						socket.emit('webrtc-ice-candidate', event.candidate);
 					}
 				};
 
-				/*
-				** Adding peer remote stream
-				*/
-				rtc.handleAddStreamEvent = function(event) {
-					console.log('"handleAddStreamEvent" => Adding stream to remote video...');
-					console.info(event);
-
-					rtc.remoteVideo.srcObject = event.stream;
-					rtc.remoteVideo.play();
+				function handleAddStreamEvent(event) {
+					console.log('[ WEBRTC ] Adding stream to remote video...');
+					if ('srcObject' in remoteVideo) {
+				    remoteVideo.srcObject = event.stream;
+				  } else {
+				    remoteVideo.src = window.URL.createObjectURL(event.stream);
+				  }
+				  remoteVideo.onloadedmetadata = function(e) {
+				    remoteVideo.play();
+				  };
 				};
 
-				rtc.handleRemoveStreamEvent = function(event) {
-					console.log('"handleRemoveStreamEvent"');
-					console.info(event);
-				};
-
-				rtc.handleICEConnectionStateChangeEvent = function(event) {
-					console.log('"handleICEConnectionStateChangeEvent"');
+				function handleRemoveStreamEvent(event) {
 					console.info(event);
 				};
 
-				rtc.handleICEGatheringStateChangeEvent = function(event) {
-					console.log('"handleICEGatheringStateChangeEvent"');
+				function handleICEConnectionStateChangeEvent(event) {
+					console.info(event);
+					switch (event.currentTarget.iceConnectionState) {
+						case "new": break;
+						case "checking": break;
+						case "connected":
+							$scope.call.state.updateState('ongoing');
+							break;
+						case "completed": break;
+						case "failed":
+							$scope.call.state.updateState('ended');
+							destroyRTCPeerConnection();
+							break;
+						case "disconnected":
+							$scope.call.state.updateState('ended');
+							destroyRTCPeerConnection();
+							break;
+						case "closed":
+							$scope.call.state.updateState('ended');
+							destroyRTCPeerConnection();
+							break;
+					}
+				};
+
+				function handleICEGatheringStateChangeEvent(event) {
 					console.info(event);
 				};
 
-				rtc.handleSignalingStateChangeEvent = function(event) {
-					console.log('"handleSignalingStateChangeEvent"');
+				function handleSignalingStateChangeEvent(event) {
 					console.info(event);
 				};
 
-				/*
-				** Receiving ICE candidate from peer
-				*/
 				socket.on('webrtc-ice-candidate', function(candidate) {
-					console.log('"socket:webrtc-ice-candidate" => Receiving new ICE candidate from peer');
-					console.info(candidate);
-
-					rtc.peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
-					.then(result => console.log(result))
+					console.log('[ WEBRTC ] Receiving ICE candidate.');
+					pc.addIceCandidate(new RTCIceCandidate(candidate))
 					.catch(error => console.error(error));
 				});
 
-				/*
-				** Receiving SDP from peer
-				*/
+				// When we receive an offer
 				socket.on('webrtc-offer', function(sdp) {
-					console.log('"socket:webrtc-offer" => Receiving new session description from peer');
-					console.info(sdp);
+					console.log('[ WEBRTC ] Receiving offer');
 
-					if (!rtc.createRTCPeerConnection()) {
-						return ;
-					}
+					// Create a new RTCPeerConnection
+					createRTCPeerConnection('callee');
 
-					rtc.peerConnection.setRemoteDescription(new RTCSessionDescription(sdp))
+					// Save the peer SDP
+					console.log('[ WEBRTC ] Saving remote session description');
+					pc.setRemoteDescription(new RTCSessionDescription(sdp))
+					// Access microphone and camera devices settings
 					.then(function () {
-						return navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+						console.log('[ WEBRTC ] Getting access to mic and cam');
+						return navigator.mediaDevices.getUserMedia(mediaConstraints);
 					})
+					// Setup stream and tracks
 					.then(function(stream) {
-						rtc.localVideo.src = window.URL.createObjectURL(stream);
-						rtc.localVideo.play();
+						console.log('[ WEBRTC ] Saving stream');
+						if ('srcObject' in localVideo) {
+					    localVideo.srcObject = stream;
+					  } else {
+					    localVideo.src = window.URL.createObjectURL(stream);
+					  }
+					  localVideo.onloadedmetadata = function(e) {
+					    localVideo.play();
+					  };
 
-						stream.getTracks().forEach(track => {
-							console.log(track);
-							return rtc.peerConnection.addTrack(track, stream);
-						});
+						console.log('[ WEBRTC ] Saving tracks');
+						stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
 						return Promise.resolve();
 					})
+					// Create an anwser
 					.then(function() {
-						return rtc.peerConnection.createAnswer();
+						console.log('[ WEBRTC ] Creating answer');
+						return pc.createAnswer();
 					})
+					// Save our local SDP
 					.then(function(answer) {
-						return rtc.peerConnection.setLocalDescription(answer);
+						console.log('[ WEBRTC ] Saving local session description');
+						return pc.setLocalDescription(answer);
 					})
+					// Send it over to peer
 					.then(function() {
-						socket.emit('webrtc-answer', rtc.peerConnection.localDescription);
+						console.log('[ WEBRTC ] Sending local session description');
+						socket.emit('webrtc-answer', pc.localDescription);
 					})
 					.catch(error => console.error(error));
 				});
 
-				/*
-				** Receiving answer
-				*/
+				//
 				socket.on('webrtc-answer', function(sdp) {
-					console.log('"socket:webrtc-answer" => Receiving webrtc sdp answer');
-					console.info(sdp);
-
-					if (!rtc.createRTCPeerConnection()) {
-						return ;
-					}
-
-					rtc.peerConnection.setRemoteDescription(new RTCSessionDescription(sdp))
+					console.log('Receiving answer');
+					console.log('[ WEBRTC ] Saving remote session description');
+					pc.setRemoteDescription(new RTCSessionDescription(sdp))
 					.catch(error => console.error(error));
 				});
 
@@ -488,6 +414,9 @@
 							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "idle"');
 							$scope.call.infos.state = 'Click to make call';
 							$scope.call.state.state = state;
+
+							ringtone.pause();
+							ringtone.currentTime = 0;
 							break;
 
 						// Waiting for the user on the other end to accept the call
@@ -502,6 +431,12 @@
 							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "ringing"');
 							$scope.call.infos.state = 'Ringing...';
 							$scope.call.state.state = 'ringing';
+							ringtone.play();
+							this.currentTime = 0;
+							ringtone.addEventListener('ended', function() {
+								this.currentTime = 0;
+								this.play();
+							}, false);
 							break;
 
 						// The Webrtc is trying to connect both ends
@@ -509,19 +444,27 @@
 							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "connecting"');
 							$scope.call.infos.state = 'Connecting...';
 							$scope.call.state.state = 'connecting';
+							ringtone.pause();
 							break;
 
 						// The call is actually ongoing
 						case 'ongoing':
 							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "ongoing"');
 							$scope.call.state.state = 'ongoing';
+							$scope.call.timer.start();
 							break;
 
 						// The call has ended without errors
 						case 'ended':
 							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "ended"');
-							$scope.call.infos.state = 'Call ended. Please rate your call.';
-							$scope.call.state.state = 'ended';
+							$scope.call.infos.state = 'Call ended. Click to make another call.';
+							// $scope.call.infos.state = 'Call ended. Please rate your call.';
+							// $scope.call.state.state = 'ended';
+							$scope.call.state.state = 'idle';
+							$scope.call.timer.stop();
+
+							ringtone.pause();
+							ringtone.currentTime = 0;
 							break;
 
 						// The call failed at some point
@@ -529,6 +472,10 @@
 							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "failed"');
 							$scope.call.infos.state = 'Call failed, try again.';
 							$scope.call.state.state = 'idle';
+							$scope.call.timer.stop();
+
+							ringtone.pause();
+							ringtone.currentTime = 0;
 							break;
 
 						// The call has been rejected by the user on the other end
@@ -536,6 +483,9 @@
 							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "rejected"');
 							$scope.call.infos.state = 'Call rejected. Try again.';
 							$scope.call.state.state = 'idle';
+
+							ringtone.pause();
+							ringtone.currentTime = 0;
 							break;
 
 						// Idle by default
@@ -543,6 +493,9 @@
 							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "idle"');
 							$scope.call.infos.state = 'Click to make call';
 							$scope.call.state.state = 'idle';
+
+							ringtone.pause();
+							ringtone.currentTime = 0;
 							break;
 					}
 				}
@@ -623,13 +576,12 @@
 					console.log('[ ACTION ] Hanging up call...');
 					$scope.call.state.updateState('ended');
 					socket.emit('call-hangup');
-					rtc.destroyRTCPeerConnection();
+					destroyRTCPeerConnection();
 				};
 
 				// Mute call
 				$scope.callMute = function() {
 					console.log('[ ACTION ] Muting call...');
-					$scope.call.state.updateState('ended');
 				};
 
 				// Unmute call
@@ -647,7 +599,6 @@
 					console.log('[ ACTION ] Answering call...');
 					$scope.call.state.updateState('connecting');
 					socket.emit('call-answer');
-					rtc.handleGetUserMedia();
 				};
 
 				// Reject call
@@ -655,7 +606,7 @@
 					console.log('[ ACTION ] Rejecting call...');
 					$scope.call.state.updateState('idle');
 					socket.emit('call-reject');
-					rtc.destroyRTCPeerConnection();
+					destroyRTCPeerConnection();
 				};
 
 				/*
@@ -669,19 +620,25 @@
 
 				// Call has been answered
 				socket.on('call-answer', function() {
+					console.log('[ SOCKET ] Call has been anwered');
 					$scope.call.state.updateState('connecting');
+
+					createRTCPeerConnection();
+					handleGetUserMedia();
 				});
 
 				// Call has been rejected
 				socket.on('call-reject', function() {
 					$scope.call.state.updateState('rejected');
-					rtc.destroyRTCPeerConnection();
+					console.log('[ SOCKET ] Call has been rejected');
+					destroyRTCPeerConnection();
 				});
 
 				// Call has been hanged up
 				socket.on('call-hangup', function() {
 					$scope.call.state.updateState('ended');
-					rtc.destroyRTCPeerConnection();
+					console.log('[ SOCKET ] Call has been hung up');
+					destroyRTCPeerConnection();
 				});
 			});
 		})();
