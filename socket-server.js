@@ -1,5 +1,13 @@
 const app = require('express')();
-const server = require('http').Server(app);
+const cors = require('cors');
+
+app.use(cors());
+
+const fs = require('fs');
+const server = require('https').createServer({
+	key: fs.readFileSync('./ssl/key.pem'),
+  cert: fs.readFileSync('./ssl/cert.pem')
+}, app);
 const io = require('socket.io')(server);
 const jwt = require('jsonwebtoken');
 
@@ -76,26 +84,56 @@ class SocketServer {
 		self.webcall.on('connection', function(socket) {
 			console.log('[ webcall ] [ ' + socket.id + ' ] New socket connection.');
 
-			socket.join('webcall-room');
+			var room = 'webcall-room';
 
+			// Join room
+			socket.join(room);
+
+			// Call invitation
 			socket.on('call-invite', function() {
 				console.log('[ webcall ] [ ' + socket.id + ' ] Inviting client to call.');
-				socket.to('webcall-room').emit('call-invite');
+				socket.to(room).emit('call-invite');
 			});
 
+			// Call hanged up
 			socket.on('call-hangup', function() {
 				console.log('[ webcall ] [ ' + socket.id + ' ] Hanging up call.');
-				socket.to('webcall-room').emit('call-hangup');
+				socket.to(room).emit('call-hangup');
 			});
 
+			// Call answered
 			socket.on('call-answer', function() {
 				console.log('[ webcall ] [ ' + socket.id + ' ] Answering call.');
-				socket.to('webcall-room').emit('call-answer');
+				socket.to(room).emit('call-answer');
 			});
 
+			// Call rejected
 			socket.on('call-reject', function() {
 				console.log('[ webcall ] [ ' + socket.id + ' ] Reject call.');
-				socket.to('webcall-room').emit('call-reject');
+				socket.to(room).emit('call-reject');
+			});
+
+			// RTC video offer
+	    socket.on('webrtc-offer', function(sdp) {
+        console.log('[ webcall ] [ ' + socket.id + ' ] webrtc-offer.');
+        socket.to(room).emit('webrtc-offer', sdp);
+	    });
+
+	    // RTC video answer
+	    socket.on('webrtc-answer', function(sdp) {
+				console.log('[ webcall ] [ ' + socket.id + ' ] webrtc-answer.');
+        socket.to(room).emit('webrtc-answer', sdp);
+	    });
+
+	    // ICE candidates
+	    socket.on('webrtc-ice-candidate', function(candidate) {
+				console.log('[ webcall ] [ ' + socket.id + ' ] webrtc-ice-candidate')
+        socket.to(room).emit('webrtc-ice-candidate', candidate);
+	    });
+
+			// Socket disconnection
+			socket.on('disconnect', function() {
+				self.io.to(room).emit('call-hangup');
 			});
 		});
 	}

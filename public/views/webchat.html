@@ -57,7 +57,7 @@
 
 			// Angular factory for socket.io defined as "socket"
 		  app.factory('socket', function ($rootScope) {
-		    var socket = io('http://127.0.0.1:3001/webchat');
+		    var socket = io('https://127.0.0.1:3001/webchat');
 
 		    return {
 		      on: function (eventName, callback) {
