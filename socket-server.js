@@ -91,25 +91,25 @@ class SocketServer {
 
 			// Call invitation
 			socket.on('call-invite', function() {
-				console.log('[ webcall ] [ ' + socket.id + ' ] Inviting client to call.');
+				console.log('[ webcall ] [ ' + socket.id + ' ] Call invitation.');
 				socket.to(room).emit('call-invite');
 			});
 
 			// Call hanged up
 			socket.on('call-hangup', function() {
-				console.log('[ webcall ] [ ' + socket.id + ' ] Hanging up call.');
+				console.log('[ webcall ] [ ' + socket.id + ' ] Call hanged up');
 				socket.to(room).emit('call-hangup');
 			});
 
-			// Call answered
-			socket.on('call-answer', function() {
-				console.log('[ webcall ] [ ' + socket.id + ' ] Answering call.');
-				socket.to(room).emit('call-answer');
+			// Call accepted
+			socket.on('call-accept', function() {
+				console.log('[ webcall ] [ ' + socket.id + ' ] Call accepted.');
+				socket.to(room).emit('call-accept');
 			});
 
 			// Call rejected
 			socket.on('call-reject', function() {
-				console.log('[ webcall ] [ ' + socket.id + ' ] Reject call.');
+				console.log('[ webcall ] [ ' + socket.id + ' ] Call rejected.');
 				socket.to(room).emit('call-reject');
 			});
 
@@ -133,6 +133,7 @@ class SocketServer {
 
 			// Socket disconnection
 			socket.on('disconnect', function() {
+				console.log('[ webcall ] [ ' + socket.id + ' ] User disconnected.')
 				self.io.to(room).emit('call-hangup');
 			});
 		});

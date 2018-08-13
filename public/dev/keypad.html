@@ -1,0 +1,68 @@
+<div class="keypad">
+  <!-- Keypad infos -->
+  <div class="keypad-infos">
+    <div class="keypad-title">{{ keypad.title }}</div>
+    <div class="keypad-secret">{{ keypad.stars }}</div>
+  </div>
+
+  <!-- Keypad numeric pad -->
+  <div class="keypad-pad">
+    <div class="keypad-row">
+      <div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(1)">1</div></div>
+      <div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(2)">2</div></div>
+      <div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(3)">3</div></div>
+    </div>
+    <div class="keypad-row">
+      <div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(4)">4</div></div>
+      <div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(5)">5</div></div>
+      <div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(6)">6</div></div>
+    </div>
+    <div class="keypad-row">
+      <div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(7)">7</div></div>
+      <div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(8)">8</div></div>
+      <div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(9)">9</div></div>
+    </div>
+    <div class="keypad-row">
+      <div class="keypad-item"><div class="keypad-number">&nbsp;</div></div>
+      <div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(0)">0</div></div>
+      <div class="keypad-item"><div class="keypad-number" ng-click="keypad.reset()">C</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var app = angular.module('app', ['ngCookies']);
+
+  app.controller('webcall', function($scope, $http, $window, $location, $cookies, $interval, socket) {
+    $scope.keypad = {
+      secret: '',
+      stars: '\u00A0',
+      title: 'Enter your access code'
+    };
+
+    $scope.keypad.reset = function() {
+      $scope.keypad.title = 'Enter your access code';
+      $scope.keypad.stars = '\u00A0';
+      $scope.keypad.secret = '';
+    };
+
+    $scope.keypad.click = function(num) {
+      if ($scope.keypad.secret.length == 0) {
+        $scope.keypad.reset();
+      }
+      $scope.keypad.secret += num;
+      $scope.keypad.stars += '*';
+      if ($scope.keypad.secret.length == 6) {
+        if ($scope.keypad.secret == '094463') {
+          $scope.keypad.title = 'Valid access code';
+          $scope.keypad.secret = '';
+        } else {
+          $scope.keypad.title = 'Invalid access code';
+          $scope.keypad.secret = '';
+        }
+      }
+    };
+  });
+})();
+</script>

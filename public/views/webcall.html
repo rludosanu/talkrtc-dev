@@ -24,98 +24,60 @@
 	<body ng-controller="webcall">
 		<div class="webcall">
 			<div class="webcall-container">
-				<div class="keypad">
-					<!-- Keypad infos -->
-					<div class="keypad-infos">
-						<div class="keypad-title">{{ keypad.title }}</div>
-						<div class="keypad-secret">{{ keypad.stars }}</div>
-					</div>
-
-					<!-- Keypad numeric pad -->
-					<div class="keypad-pad">
-						<div class="keypad-row">
-							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(1)">1</div></div>
-							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(2)">2</div></div>
-							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(3)">3</div></div>
-						</div>
-						<div class="keypad-row">
-							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(4)">4</div></div>
-							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(5)">5</div></div>
-							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(6)">6</div></div>
-						</div>
-						<div class="keypad-row">
-							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(7)">7</div></div>
-							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(8)">8</div></div>
-							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(9)">9</div></div>
-						</div>
-						<div class="keypad-row">
-							<div class="keypad-item"><div class="keypad-number">&nbsp;</div></div>
-							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.click(0)">0</div></div>
-							<div class="keypad-item"><div class="keypad-number" ng-click="keypad.reset()">C</div></div>
-						</div>
-					</div>
-				</div>
-
 				<div class="call">
 		      <div class="call-infos">
 						<div class="infos-username"></div>
 						<video id="local-video" muted="muted" width="320px" height="240px" style="display: none;"></video>
 						<video id="remote-video" width="320px" height="240px" style="display: none;"></video>
-						<div class="infos-state" ng-hide="call.state.state === 'ongoing'">{{ call.infos.state }}</div>
-						<div class="infos-timer" ng-show="call.state.state === 'ongoing'">{{ call.infos.timer }}</div>
-						<div class="infos-rating" ng-show="call.state.state === 'ended'">
-							<span class="fa fa-fw fa-star" ng-click="callRate(1)"></span>
-							<span class="fa fa-fw fa-star" ng-click="callRate(2)"></span>
-							<span class="fa fa-fw fa-star" ng-click="callRate(3)"></span>
-							<span class="fa fa-fw fa-star" ng-click="callRate(4)"></span>
-							<span class="fa fa-fw fa-star" ng-click="callRate(5)"></span>
-						</div>
+						<div class="infos-state" ng-hide="call.state === 'ongoing'">{{ call.message }}</div>
+						<div class="infos-timer" ng-show="call.state === 'ongoing'">{{ call.timer }}</div>
 					</div>
 					<div class="call-actions">
-						<div class="action-row" ng-show="call.state.state === 'ongoing'">
-							<!-- Mute call -->
-							<div class="action-item">
-								<div id="call-mute" class="action-button" ng-click="callMute()">
-									<span class="fa fa-fw fa-microphone"></span>
-								</div>
-							</div>
-							<!-- Unmute call -->
-							<div class="action-item hide">
-								<div id="call-unmute" class="action-button" ng-click="callUnmute()">
-									<span class="fa fa-fw fa-microphone-slash"></span>
-								</div>
-							</div>
-							<!-- Settings -->
-							<div class="action-item">
-								<div id="call-settings" class="action-button" ng-click="callSettings()">
-									<span class="fa fa-fw fa-cog"></span>
-								</div>
+						<div class="action-row" ng-show="call.state === 'ended'">
+							<div id="call-rate">
+								<span class="fa fa-fw fa-star" ng-click="rateCall(1)"></span>
+								<span class="fa fa-fw fa-star" ng-click="rateCall(2)"></span>
+								<span class="fa fa-fw fa-star" ng-click="rateCall(3)"></span>
+								<span class="fa fa-fw fa-star" ng-click="rateCall(4)"></span>
+								<span class="fa fa-fw fa-star" ng-click="rateCall(5)"></span>
 							</div>
 						</div>
-						<div class="action-row" ng-show="call.state.state === 'ringing'">
+						<div class="action-row" ng-show="call.state === 'ringing'">
 							<!-- Reject call -->
 							<div class="action-item">
-								<div id="call-reject" class="action-button" ng-click="callReject()">
+								<div id="call-reject" class="action-button" ng-click="rejectCall()">
 									<span class="fa fa-fw fa-times"></span>
 								</div>
 							</div>
 							<!-- Answer call -->
 							<div class="action-item">
-								<div id="call-answer" class="action-button" ng-click="callAnswer()">
+								<div id="call-accept" class="action-button" ng-click="acceptCall()">
 									<span class="fa fa-fw fa-check"></span>
 								</div>
 							</div>
 						</div>
-						<div class="action-row">
-							<!-- Make call -->
-							<div class="action-item" ng-show="call.state.state === 'idle'">
-								<div id="call-make" class="action-button" ng-click="callMake()">
+						<div class="action-row" ng-show="call.state !== 'ringing'">
+							<!-- Mute call -->
+							<div class="action-item" ng-show="call.state === 'ongoing' && call.muted === false">
+								<div id="call-mute" class="action-button" ng-click="toggleMuteCall()">
+									<span class="fa fa-fw fa-microphone"></span>
+								</div>
+							</div>
+							<!-- Unmute call -->
+							<div class="action-item" ng-show="call.state === 'ongoing' && call.muted === true">
+								<div id="call-unmute" class="action-button" ng-click="toggleMuteCall()">
+									<span class="fa fa-fw fa-microphone-slash"></span>
+								</div>
+							</div>
+							<!-- Invite call -->
+							<div class="action-item" ng-show="call.state === 'idle' || call.state === 'rejected' || call.state === 'failed'">
+								<div id="call-make" class="action-button" ng-click="inviteCall()">
 									<span class="fa fa-fw fa-phone"></span>
 								</div>
 							</div>
 							<!-- Hangup call -->
-							<div class="action-item" ng-show="call.state.state === 'calling' || call.state.state === 'connecting' || call.state.state === 'ongoing'">
-								<div id="call-hangup" class="action-button" ng-click="callHangup()">
+							<div class="action-item" ng-show="call.state === 'calling' || call.state === 'connecting' || call.state === 'ongoing'">
+								<div id="call-hangup" class="action-button" ng-click="hangupCall()">
 									<span class="fa fa-fw fa-phone"></span>
 								</div>
 							</div>
@@ -156,554 +118,775 @@
 		  });
 
 			app.controller('webcall', function($scope, $http, $window, $location, $cookies, $interval, socket) {
-				window.URL = window.URL || window.webkitURL || window.mozURL;
+				class WebcallClient {
+					constructor(signaling) {
+						// Compatibility
+						window.URL = window.URL || window.webkitURL || window.mozURL;
 
-				var pc = null;
-				var localVideo = document.getElementById('local-video');
-				var remoteVideo = document.getElementById('remote-video');
-				var iceServers = [{ url: 'stun:stun1.l.google.com:19302' }];
-				var mediaConstraints = { audio: true, video: false };
-				var ringtone = new Audio('/public/sounds/ringtone.mp3');
+						// Call state
+						this.call = {
+							state: 'idle',
+							states: {
+								enum: {
+									idle: {
+										message: 'Click to make call.',
+										state: 'idle'
+									},
+									calling: {
+										message: 'Calling...',
+										state: 'calling'
+									},
+									ringing: {
+										message: 'Ringing...',
+										state: 'ringing'
+									},
+									connecting: {
+										message: 'Connecting...',
+										state: 'connecting'
+									},
+									reconnecting: {
+										message: 'Network error. Reconnecting...',
+										state: 'reconnecting'
+									},
+									ongoing: {
+										message: 'Ongoing...',
+										state: 'ongoing'
+									},
+									ended: {
+										message: 'Call ended. Please rate your experience.',
+										state: 'ended'
+									},
+									failed: {
+										message: 'Network error. Click to make a call.',
+										state: 'failed'
+									},
+									rejected: {
+										message: 'Call rejected. Click to make a call.',
+										state: 'rejected'
+									}
+								}
+							},
+							timer: {
+								counter: 0,
+								handle: null
+							},
+							ringtone: new Audio('/public/sounds/ringtone.mp3'),
+							rate: 0,
+							muted: false
+						};
 
-				function createRTCPeerConnection(role = 'caller') {
-					console.log('[ WEBRTC ] Creating new RTCPeerConnection object');
+						// WebRTC
+						this.rtc = {
+							peerConnection: null,
+							iceServers: [{
+								url: 'stun:stun1.l.google.com:19302'
+							}],
+							mediaConstraints: {
+								audio: true,
+								video: false
+							},
+							localVideo: document.getElementById('local-video'),
+							remoteVideo: document.getElementById('remote-video')
+						};
 
-					if (pc) {
-						console.error('[ WEBRTC ] RTCPeerConnection object already exists');
-						return false;
+						// Signaling handler (socket.io)
+						this.signaling = signaling;
 					}
 
-					pc = new RTCPeerConnection({ iceServers: iceServers });
+					createPeerConnection(role = 'caller') {
+						console.log('wclient->createPeerConnection() : creating new peer connection...');
+						var self = this;
 
-					pc.onicecandidate = handleICECandidateEvent;
-					pc.onaddstream = handleAddStreamEvent;
-					pc.onremovestream = handleRemoveStreamEvent;
-					pc.oniceconnectionstatechange = handleICEConnectionStateChangeEvent;
-					pc.onicegatheringstatechange = handleICEGatheringStateChangeEvent;
-					pc.onsignalingstatechange = handleSignalingStateChangeEvent;
-					pc.onnegotiationneeded = (role == 'caller') ? handleNegotiationNeededEvent : null;
+						// Check peer connection object
+						if (self.rtc.peerConnection) {
+							console.error('wclient->createPeerConnection() : peer connection already exists');
+							return false;
+						}
 
-					return true;
-				};
+						// Create a new peer connection object
+						self.rtc.peerConnection = new RTCPeerConnection({
+							iceServers: self.rtc.iceServers
+						});
 
-				function handleGetUserMedia() {
-					console.log('[ WEBRTC ] Accessing microphone and camera');
+						console.log('wclient->createPeerConnection() : peer connection created');
+						console.info(self.rtc.peerConnection);
 
-					navigator.mediaDevices.getUserMedia(mediaConstraints)
-					.then(function(stream) {
-						console.log('[ WEBRTC ] Adding stream to local video');
-						if ('srcObject' in localVideo) {
-					    localVideo.srcObject = stream;
-					  } else {
-					    localVideo.src = window.URL.createObjectURL(stream);
-					  }
-					  localVideo.onloadedmetadata = function(e) {
-					    localVideo.play();
-					  };
+						// Setup WebRTC handlers
+						console.log('wclient->createPeerConnection() : setting up handlers...');
+						self.rtc.peerConnection.onicecandidate = self.sendICECandidate.bind(self);
+						self.rtc.peerConnection.onaddstream = self.addRemoteStream.bind(self);
+						self.rtc.peerConnection.onremovestream = self.removeRemoteStream.bind(self);
+						self.rtc.peerConnection.oniceconnectionstatechange = self.updateICEConnectionState.bind(self);
+						self.rtc.peerConnection.onicegatheringstatechange = self.updateICEGatheringState.bind(self);
+						self.rtc.peerConnection.onsignalingstatechange = self.updateSignalingState.bind(self);
+						self.rtc.peerConnection.onnegotiationneeded = (role == 'caller') ? self.createOffer.bind(self) : null;
+						console.log('wclient->createPeerConnection() : handlers set up');
 
-						console.log('[ WEBRTC ] Adding tracks/stream to peer connection');
-						stream.getTracks().forEach(track => pc.addTrack(track, stream));
-					})
-					.catch(error => console.error(error));
-				};
-
-				function destroyRTCPeerConnection() {
-					console.log('localVideo', localVideo.srcObject);
-					console.log('remoteVideo', remoteVideo.srcObject);
-					console.log(pc);
-					if (localVideo.srcObject) {
-						console.log('[ WEBRTC ] Stopping local tracks');
-						localVideo.srcObject.getTracks().forEach(track => track.stop());
-						localVideo.srcObject = null;
+						return true;
 					}
 
-					if (remoteVideo.srcObject) {
-						console.log('[ WEBRTC ] Stopping remote tracks');
-						remoteVideo.srcObject.getTracks().forEach(track => track.stop());
-						remoteVideo.srcObject = null;
-					}
+					destroyPeerConnection() {
+						console.log('wclient->destroyPeerConnection() : destroying peer connection and stopping audio/video streams');
+						var self = this;
 
-					if (pc) {
-						console.log('[ WEBRTC ] Closing peer connection');
-						pc.close();
-						pc = null;
-					}
-				};
-
-				function handleNegotiationNeededEvent() {
-					console.log('[ WEBRTC ] Creating offer');
-					pc.createOffer()
-					.then(function(offer) {
-						console.log('[ WEBRTC ] Saving local session description');
-						return pc.setLocalDescription(offer);
-					})
-					.then(function() {
-						console.log('[ WEBRTC ] Sending offer');
-						socket.emit('webrtc-offer', pc.localDescription);
-					})
-					.catch(error => console.error(error));
-				};
-
-				function handleICECandidateEvent(event) {
-					console.log('[ WEBRTC ] Sending ICE candidate');
-					if (event.candidate) {
-						socket.emit('webrtc-ice-candidate', event.candidate);
-					}
-				};
-
-				function handleAddStreamEvent(event) {
-					console.log('[ WEBRTC ] Adding stream to remote video...');
-					if ('srcObject' in remoteVideo) {
-				    remoteVideo.srcObject = event.stream;
-				  } else {
-				    remoteVideo.src = window.URL.createObjectURL(event.stream);
-				  }
-				  remoteVideo.onloadedmetadata = function(e) {
-				    remoteVideo.play();
-				  };
-				};
-
-				function handleRemoveStreamEvent(event) {
-					console.info(event);
-				};
-
-				// Describes the current state of the ICE agent and its connection to
-				// the ICE server (STUN or TURN)
-				function handleICEConnectionStateChangeEvent(event) {
-					console.info(event);
-
-					switch (event.currentTarget.iceConnectionState) {
-						// The ICE agent is gathering addresses
-						case "new":
-							break;
-
-						// The ICE agent is checking pairs of local and remote candidates
-						// Gathering of candidates may still be underway
-						case "checking":
-							break;
-
-						// A usable pairing of local and remote candidates has been found.
-						// Gathering of candidates may still be underway to find a better connection option
-						case "connected":
-							break;
-
-						// The ICE agent has finished gathering candidates
-						case "completed":
-							$scope.call.state.updateState('ongoing');
-							break;
-
-						// The ICE agent has failed to find compatible matches
-						case "failed":
-							$scope.call.state.updateState('ended');
-							destroyRTCPeerConnection();
-							break;
-
-						// Checks to ensure that components are still connected.
-						// May trigger intermittently and resolve just as spontaneously or during temporary disconnections.
-						// When the problem resolves, the connection may return to the "connected" state.
-						case "disconnected":
-							$scope.call.state.updateState('ended');
-							destroyRTCPeerConnection();
-							break;
-
-						// The ICE agent has shut down and is no longer handling requests
-						case "closed":
-							$scope.call.state.updateState('ended');
-							destroyRTCPeerConnection();
-							break;
-					}
-				};
-
-				function handleICEGatheringStateChangeEvent(event) {
-					console.info(event);
-				};
-
-				/*
-				** Indicates where in the process of signaling the exchange of offer
-				** and answer the connection currently is.
-				*/
-				function handleSignalingStateChangeEvent(event) {
-					console.info(event);
-					/*
-					"stable"
-						1. No ongoing exchange of offer and answer underway.
-								- RTCPeerConnection object is new
-								- localDescription is null
-								- remoteDescription is null
-						2. Negotiation is complete and a connection has been established.
-
-					"have-local-offer"
-						The local peer has called RTCPeerConnection.setLocalDescription(),
-						passing in SDP representing an offer (usually created by calling
-						RTCPeerConnection.createOffer()), and the offer has been applied
-						successfully.
-
-					"have-remote-offer"
-						The remote peer has created an offer and used the signaling server
-						to deliver it to the local peer, which has set the offer as the
-						remote description by calling
-						RTCPeerConnection.setRemoteDescription().
-
-					"have-local-pranswer"
-						The offer sent by the remote peer has been applied and an answer
-						has been created (usually by calling
-						RTCPeerConnection.createAnswer()) and applied by calling
-						RTCPeerConnection.setLocalDescription().
-						This provisional answer describes the supported media formats
-						and so forth, but may not have a complete set of ICE candidates
-						included. Further candidates will be delivered separately later.
-
-					"have-remote-pranswer"
-						A provisional answer has been received and successfully applied in
-						response to an offer previously sent and established by calling
-						setLocalDescription().
-
-					"closed"
-						The connection is closed.
-					*/
-				};
-
-				socket.on('webrtc-ice-candidate', function(candidate) {
-					console.log('[ WEBRTC ] Receiving ICE candidate.');
-					pc.addIceCandidate(new RTCIceCandidate(candidate))
-					.catch(error => console.error(error));
-				});
-
-				// When we receive an offer
-				socket.on('webrtc-offer', function(sdp) {
-					console.log('[ WEBRTC ] Receiving offer');
-
-					// Create a new RTCPeerConnection
-					createRTCPeerConnection('callee');
-
-					// Save the peer SDP
-					console.log('[ WEBRTC ] Saving remote session description');
-					pc.setRemoteDescription(new RTCSessionDescription(sdp))
-					// Access microphone and camera devices settings
-					.then(function () {
-						console.log('[ WEBRTC ] Getting access to mic and cam');
-						return navigator.mediaDevices.getUserMedia(mediaConstraints);
-					})
-					// Setup stream and tracks
-					.then(function(stream) {
-						console.log('[ WEBRTC ] Saving stream');
-						if ('srcObject' in localVideo) {
-					    localVideo.srcObject = stream;
-					  } else {
-					    localVideo.src = window.URL.createObjectURL(stream);
-					  }
-					  localVideo.onloadedmetadata = function(e) {
-					    localVideo.play();
-					  };
-
-						console.log('[ WEBRTC ] Saving tracks');
-						stream.getTracks().forEach(track => pc.addTrack(track, stream));
-
-						return Promise.resolve();
-					})
-					// Create an anwser
-					.then(function() {
-						console.log('[ WEBRTC ] Creating answer');
-						return pc.createAnswer();
-					})
-					// Save our local SDP
-					.then(function(answer) {
-						console.log('[ WEBRTC ] Saving local session description');
-						return pc.setLocalDescription(answer);
-					})
-					// Send it over to peer
-					.then(function() {
-						console.log('[ WEBRTC ] Sending local session description');
-						socket.emit('webrtc-answer', pc.localDescription);
-					})
-					.catch(error => console.error(error));
-				});
-
-				//
-				socket.on('webrtc-answer', function(sdp) {
-					console.log('Receiving answer');
-					console.log('[ WEBRTC ] Saving remote session description');
-					pc.setRemoteDescription(new RTCSessionDescription(sdp))
-					.catch(error => console.error(error));
-				});
-
-				/*
-				** Keypad access code
-				*/
-				$scope.keypad = {
-					secret: '',
-					stars: '\u00A0',
-					title: 'Enter your access code'
-				};
-
-				$scope.keypad.reset = function() {
-					$scope.keypad.title = 'Enter your access code';
-					$scope.keypad.stars = '\u00A0';
-					$scope.keypad.secret = '';
-				};
-
-				$scope.keypad.click = function(num) {
-					if ($scope.keypad.secret.length == 0) {
-						$scope.keypad.reset();
-					}
-					$scope.keypad.secret += num;
-					$scope.keypad.stars += '*';
-					if ($scope.keypad.secret.length == 6) {
-						if ($scope.keypad.secret == '094463') {
-							$scope.keypad.title = 'Valid access code';
-							$scope.keypad.secret = '';
+						if (self.rtc.localVideo.srcObject) {
+							self.rtc.localVideo.srcObject.getTracks().forEach(track => track.stop());
+							self.rtc.localVideo.srcObject = null;
+							console.log('wclient->destroyPeerConnection() : local audio/video stream stopped.');
 						} else {
-							$scope.keypad.title = 'Invalid access code';
-							$scope.keypad.secret = '';
+							console.log('wclient->destroyPeerConnection() : local audio/video already stopped.');
+						}
+
+						if (self.rtc.remoteVideo.srcObject) {
+							self.rtc.remoteVideo.srcObject.getTracks().forEach(track => track.stop());
+							self.rtc.remoteVideo.srcObject = null;
+							console.log('wclient->destroyPeerConnection() : remote audio/video stream stopped.');
+						} else {
+							console.log('wclient->destroyPeerConnection() : remote audio/video stream already stopped.');
+						}
+
+						if (self.rtc.peerConnection) {
+							self.rtc.peerConnection.close();
+							self.rtc.peerConnection = null;
+							console.log('wclient->destroyPeerConnection() : peer connection closed');
+						} else {
+							console.log('wclient->destroyPeerConnection() : peer connection already closed.');
 						}
 					}
-				};
 
-				/*
-				** Call object
-				*/
-				$scope.call = {};
+					getMediaAccess() {
+						console.log('wclient->getMediaAccess() : accessing microphone and camera');
+						var self = this;
 
-				$scope.call.state = {};
+						navigator.mediaDevices.getUserMedia(self.rtc.mediaConstraints)
+						.then(function(stream) {
+							console.log('wclient->getMediaAccess() : attaching local stream');
+							console.info(stream);
+							if ('srcObject' in self.rtc.localVideo) {
+								self.rtc.localVideo.srcObject = stream;
+							} else {
+								self.rtc.localVideo.src = window.URL.createObjectURL(stream);
+							}
 
-				/*
-				** Call state
-				*/
-				$scope.call.state.state = 'idle';
+							self.rtc.localVideo.onloadedmetadata = function(e) {
+								self.rtc.localVideo.play();
+							};
 
-				$scope.call.state.updateState = function(state) {
-					switch(state) {
-						// At this point nothing going on. You can either make or recieve a call.
-						case 'idle':
-							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "idle"');
-							$scope.call.infos.state = 'Click to make call';
-							$scope.call.state.state = state;
+							console.log('wclient->getMediaAccess() : attaching local tracks');
+							stream.getTracks().forEach(track => {
+								console.info(track);
+								self.rtc.peerConnection.addTrack(track, stream)
+							});
+						})
+						.catch(error => console.error(error));
+					}
 
-							ringtone.pause();
-							ringtone.currentTime = 0;
-							break;
+					sendICECandidate(event) {
+						var self = this;
 
-						// Waiting for the user on the other end to accept the call
-						case 'calling':
-							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "calling"');
-							$scope.call.infos.state = 'Calling...';
-							$scope.call.state.state = 'calling';
-							break;
+						if (event.candidate) {
+							console.log('wclient->sendICECandidate() : sending new ICE candidate to peer');
+							console.info(event.candidate);
+							self.signaling.emit('webrtc-ice-candidate', event.candidate);
+						}
+					}
 
-						// The user on the other end is trying to reach us
-						case 'ringing':
-							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "ringing"');
-							$scope.call.infos.state = 'Ringing...';
-							$scope.call.state.state = 'ringing';
-							ringtone.play();
+					addIceCandidate(candidate) {
+						var self = this;
+
+						console.log('wclient->addIceCandidate() : adding new candidate to peer connection');
+						console.info(candidate);
+						self.rtc.peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
+						.catch(error => console.error(error));
+					}
+
+					addRemoteStream() {
+						var self = this;
+
+						if ('srcObject' in self.rtc.remoteVideo) {
+							self.rtc.remoteVideo.srcObject = event.stream;
+						} else {
+							self.rtc.remoteVideo.src = window.URL.createObjectURL(event.stream);
+						}
+						console.log('wclient->addRemoteStream() : attaching remote stream');
+						console.info(event.stream);
+
+						self.rtc.remoteVideo.onloadedmetadata = function(e) {
+							self.rtc.remoteVideo.play();
+						};
+					}
+
+					removeRemoteStream(event) {
+						console.log('wclient->removeRemoteStream() : removing remote stream');
+						console.info(event);
+					}
+
+					/*
+					** Describes the current state of the ICE agent and its connection to the ICE server
+					*/
+					updateICEConnectionState(event) {
+						var self = this;
+
+						switch (event.currentTarget.iceConnectionState) {
+							// The ICE agent is gathering addresses
+							case "new":
+								console.log('wclient->updateICEConnectionState() : state is now "new"');
+								break;
+
+							// The ICE agent is checking pairs of local and remote candidates
+							// Gathering of candidates may still be underway
+							case "checking":
+								console.log('wclient->updateICEConnectionState() : state is now "checking"');
+								break;
+
+							// A usable pairing of local and remote candidates has been found.
+							// Gathering of candidates may still be underway to find a better connection option
+							case "connected":
+								console.log('wclient->updateICEConnectionState() : state is now "connected"');
+								self.updateState('ongoing');
+								break;
+
+							// The ICE agent has finished gathering candidates
+							case "completed":
+								console.log('wclient->updateICEConnectionState() : state is now "completed"');
+								break;
+
+							// The ICE agent has failed to find compatible matches
+							case "failed":
+								console.log('wclient->updateICEConnectionState() : state is now "failed"');
+								self.updateState('failed');
+								self.destroyPeerConnection();
+								break;
+
+							// Checks to ensure that components are still connected.
+							// May trigger intermittently and resolve just as spontaneously or during temporary disconnections.
+							// When the problem resolves, the connection may return to the "connected" state.
+							case "disconnected":
+								console.log('wclient->updateICEConnectionState() : state is now "disconnected"');
+								self.updateState('reconnecting');
+								break;
+
+							// The ICE agent has shut down and is no longer handling requests
+							case "closed":
+								console.log('wclient->updateICEConnectionState() : state is now "closed"');
+								self.updateState('ended');
+								self.destroyPeerConnection();
+								break;
+						}
+					}
+
+					updateICEGatheringState(event) {
+						console.log('wclient->updateICEGatheringState()', event);
+					}
+
+					/*
+					** Indicates where in the process of signaling the exchange of offer and answer the connection currently is
+					*/
+					updateSignalingState(event) {
+						switch (event.currentTarget.signalingState) {
+							// No ongoing exchange of offer and answer underway.
+							// Negotiation is complete and a connection has been established.
+							case 'stable':
+								console.log('wclient->updateSignalingState() : state is now "stable"');
+								break;
+
+							// The local peer has called RTCPeerConnection.setLocalDescription(), passing in SDP representing an offer (usually created by calling
+							// RTCPeerConnection.createOffer()), and the offer has been applied successfully.
+							case 'have-local-offer':
+								console.log('wclient->updateSignalingState() : state is now "have-local-offer"');
+								break;
+
+							// The remote peer has created an offer and used the signaling server to deliver it to the local peer, which has set the offer as the
+							// remote description by calling RTCPeerConnection.setRemoteDescription().
+							case 'have-remote-offer':
+								console.log('wclient->updateSignalingState() : state is now "have-remote-offer"');
+								break;
+
+							// The offer sent by the remote peer has been applied and an answer has been created (usually by calling RTCPeerConnection.createAnswer())
+							// and applied by calling RTCPeerConnection.setLocalDescription(). This provisional answer describes the supported media formats and so forth,
+							// but may not have a complete set of ICE candidates included. Further candidates will be delivered separately later.
+							case 'have-local-pranswer':
+								console.log('wclient->updateSignalingState() : state is now "have-local-pranswer"');
+								break;
+
+							// A provisional answer has been received and successfully applied in response to an offer previously sent and established by calling
+							// setLocalDescription().
+							case 'have-remote-pranswer':
+								console.log('wclient->updateSignalingState() : state is now "have-remote-pranswer"');
+								break;
+
+							// The connection is closed.
+							case 'closed':
+								console.log('wclient->updateSignalingState() : state is now "closed"');
+								break;
+
+						}
+					}
+
+					createOffer() {
+						var self = this;
+
+						console.log('wclient->createOffer() : creating new offer');
+						self.rtc.peerConnection.createOffer()
+						.then(function(offer) {
+							console.log('wclient->createOffer() : setting up local session description');
+							return self.rtc.peerConnection.setLocalDescription(offer);
+						})
+						.then(function() {
+							console.log('wclient->createOffer() : sending offer to peer');
+							self.signaling.emit('webrtc-offer', self.rtc.peerConnection.localDescription);
+						})
+						.catch(error => console.error(error));
+					}
+
+					createAnswer(sdp) {
+						var self = this;
+
+						self.createPeerConnection('callee');
+
+						console.log('wclient->createAnswer() : creating answer...');
+						console.log('wclient->createAnswer() : setting up remote session description');
+						self.rtc.peerConnection.setRemoteDescription(new RTCSessionDescription(sdp))
+						.then(function () {
+							console.log('wclient->createAnswer() : getting access to devices');
+							return navigator.mediaDevices.getUserMedia(self.rtc.mediaConstraints);
+						})
+						.then(function(stream) {
+							console.log('wclient->createAnswer() : attaching local stream');
+							console.info(stream);
+							if ('srcObject' in self.rtc.localVideo) {
+								self.rtc.localVideo.srcObject = stream;
+							} else {
+								self.rtc.localVideo.src = window.URL.createObjectURL(stream);
+							}
+
+							self.rtc.localVideo.onloadedmetadata = function(e) {
+								self.rtc.localVideo.play();
+							};
+
+							console.log('wclient->createAnswer() : attaching local tracks');
+							stream.getTracks().forEach(track => {
+								console.info(track);
+								self.rtc.peerConnection.addTrack(track, stream);
+							});
+
+							return Promise.resolve();
+						})
+						.then(function() {
+							console.log('wclient->createAnswer() : creating a peer answer');
+							return self.rtc.peerConnection.createAnswer();
+						})
+						.then(function(answer) {
+							console.log('wclient->createAnswer() : setting up local session description');
+							return self.rtc.peerConnection.setLocalDescription(answer);
+						})
+						.then(function() {
+							console.log('wclient->createAnswer() : sending "webrtc-answer" message');
+							self.signaling.emit('webrtc-answer', self.rtc.peerConnection.localDescription);
+						})
+						.catch(error => console.error(error));
+					}
+
+					setRemoteSessionDescription(sdp) {
+						var self = this;
+
+						console.log('wclient->setRemoteSessionDescription() : setting up remote session description');
+						self.rtc.peerConnection.setRemoteDescription(new RTCSessionDescription(sdp))
+						.catch(error => console.error(error));
+					}
+
+					// Start playing rintone
+					startRingtone() {
+						var self = this;
+
+						console.log('wclient->startRingtone() : starting ringtone loop');
+						self.call.ringtone.addEventListener('ended', function() {
 							this.currentTime = 0;
-							ringtone.addEventListener('ended', function() {
-								this.currentTime = 0;
-								this.play();
-							}, false);
-							break;
+							this.play();
+						}, false);
+						self.call.ringtone.play();
+					}
 
-						// The Webrtc is trying to connect both ends
-						case 'connecting':
-							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "connecting"');
-							$scope.call.infos.state = 'Connecting...';
-							$scope.call.state.state = 'connecting';
-							ringtone.pause();
-							break;
+					// Stop playing rintone
+					stopRingtone() {
+						var self = this;
 
-						// The call is actually ongoing
-						case 'ongoing':
-							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "ongoing"');
-							$scope.call.state.state = 'ongoing';
-							$scope.call.timer.start();
-							break;
+						console.log('wclient->stopRingtone() : stopping ringtone loop');
+						self.call.ringtone.pause();
+					}
 
-						// The call has ended without errors
-						case 'ended':
-							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "ended"');
-							$scope.call.infos.state = 'Call ended. Click to make another call.';
-							// $scope.call.infos.state = 'Call ended. Please rate your call.';
-							// $scope.call.state.state = 'ended';
-							$scope.call.state.state = 'idle';
-							$scope.call.timer.stop();
+					// Updates the app state
+					updateState(state) {
+						var self = this;
 
-							ringtone.pause();
-							ringtone.currentTime = 0;
-							break;
+						switch(state) {
+							// On "idle" either us or the peer can start a new call.
+							case self.call.states.enum.idle.state:
+								// Do nothing if the current state is the next state
+								if (self.call.state === self.call.states.enum.idle.state) return ;
 
-						// The call failed at some point
-						case 'failed':
-							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "failed"');
-							$scope.call.infos.state = 'Call failed, try again.';
-							$scope.call.state.state = 'idle';
-							$scope.call.timer.stop();
+								console.info('wclient->updateState() : updating state from "' + self.call.state + '" to "' + state + '"');
+								// Update internal state
+								self.call.state = state;
+								self.call.muted = false;
 
-							ringtone.pause();
-							ringtone.currentTime = 0;
-							break;
+								// Update angular state
+								$scope.call.state = state;
+								$scope.call.message = self.call.states.enum.idle.message;
 
-						// The call has been rejected by the user on the other end
-						case 'rejected':
-							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "rejected"');
-							$scope.call.infos.state = 'Call rejected. Try again.';
-							$scope.call.state.state = 'idle';
+								// Stop and reset timer
+								self.stopTimer();
 
-							ringtone.pause();
-							ringtone.currentTime = 0;
-							break;
+								// Stop playing ringtone
+								self.stopRingtone();
+								break;
 
-						// Idle by default
-						default:
-							console.log('[ STATE ] Call state changed from "' + $scope.call.state.state + '" to "idle"');
-							$scope.call.infos.state = 'Click to make call';
-							$scope.call.state.state = 'idle';
+							// On "calling" we are waiting for the peer to answer our connection request
+							case self.call.states.enum.calling.state:
+								// Do nothing if the current state is the next state
+								if (self.call.state === self.call.states.enum.calling.state) return ;
 
-							ringtone.pause();
-							ringtone.currentTime = 0;
-							break;
+								console.info('wclient->updateState() : updating state from "' + self.call.state + '" to "' + state + '"');
+								// Update internal state
+								self.call.state = state;
+
+								// Update angular state
+								$scope.call.state = state;
+								$scope.call.message = self.call.states.enum.calling.message;
+								break;
+
+							// On "ringing" we need to either accept or reject the peer connection request
+							case self.call.states.enum.ringing.state:
+								// Do nothing if the current state is the next state
+								if (self.call.state === self.call.states.enum.ringing.state) return ;
+
+								console.info('wclient->updateState() : updating state from "' + self.call.state + '" to "' + state + '"');
+								// Update internal state
+								self.call.state = state;
+
+								// Update angular state
+								$scope.call.state = state;
+								$scope.call.message = self.call.states.enum.ringing.message;
+
+								// Start playing ringtone
+								self.startRingtone();
+								break;
+
+							// On "connecting" the call connection has been accepted, we can start the WebRTC connection proccess.
+							case self.call.states.enum.connecting.state:
+								// Do nothing if the current state is the next state
+								if (self.call.state === self.call.states.enum.connecting.state) return ;
+
+								console.info('wclient->updateState() : updating state from "' + self.call.state + '" to "' + state + '"');
+								// Update internal state
+								self.call.state = state;
+
+								// Update angular state
+								$scope.call.state = state;
+								$scope.call.message = self.call.states.enum.connecting.message;
+
+								// Stop playing ringtone
+								self.stopRingtone();
+								break;
+
+							// On "reconnecting" we need to wait 3 seconds before killing the WebRTC connection.
+							case self.call.states.enum.reconnecting.state:
+								// Do nothing if the current state is the next state
+								if (self.call.state === self.call.states.enum.reconnecting.state) return ;
+
+								console.info('wclient->updateState() : updating state from "' + self.call.state + '" to "' + state + '"');
+								// Update internal state
+								self.call.state = state;
+
+								// Update angular state
+								$scope.call.state = state;
+								$scope.call.message = self.call.states.enum.reconnecting.message;
+								break;
+
+							// On "ongoing" the WebRTC connection has been established.
+							case self.call.states.enum.ongoing.state:
+								// Do nothing if the current state is the next state
+								if (self.call.state === self.call.states.enum.ongoing.state) return ;
+
+								console.info('wclient->updateState() : updating state from "' + self.call.state + '" to "' + state + '"');
+								// Update internal state
+								self.call.state = state;
+
+								// Update angular state
+								$scope.call.state = state;
+								$scope.call.message = self.call.states.enum.ongoing.message;
+
+								// Start timer
+								self.startTimer();
+								break;
+
+							// On "ended" the call has naturally ended with a hangup.
+							case self.call.states.enum.ended.state:
+								// Do nothing if the current state is the next state
+								if (self.call.state === self.call.states.enum.ended.state) return ;
+
+								console.info('wclient->updateState() : updating state from "' + self.call.state + '" to "' + state + '"');
+								// Update internal state
+								self.call.state = state;
+								self.call.muted = false;
+
+								// Update angular state
+								$scope.call.state = state;
+								$scope.call.message = self.call.states.enum.ended.message;
+
+								// Stop and reset timer
+								self.stopTimer();
+
+								// Stop playing ringtone
+								self.stopRingtone();
+								break;
+
+							// On "failed" the WebRTC connection proccess has failed or the ongoing call has failed due to network problems.
+							case self.call.states.enum.failed.state:
+								// Do nothing if the current state is the next state
+								if (self.call.state === self.call.states.enum.failed.state) return ;
+
+								console.info('wclient->updateState() : updating state from "' + self.call.state + '" to "' + state + '"');
+								// Update internal state
+								self.call.state = state;
+								self.call.muted = false;
+
+								// Update angular state
+								$scope.call.state = state;
+								$scope.call.message = self.call.states.enum.failed.message;
+
+								// Stop and reset timer
+								self.stopTimer();
+
+								// Stop playing ringtone
+								self.stopRingtone();
+								break;
+
+							// On "rejected" the peer has sent us a "call-reject" message.
+							case self.call.states.enum.rejected.state:
+								// Do nothing if the current state is the next state
+								if (self.call.state === self.call.states.enum.rejected.state) return ;
+
+								console.info('wclient->updateState() : updating state from "' + self.call.state + '" to "' + state + '"');
+								// Update internal state
+								self.call.state = state;
+								self.call.muted = false;
+
+								// Update angular state
+								$scope.call.state = state;
+								$scope.call.message = self.call.states.enum.rejected.message;
+								break;
+
+							// On "unknown" we just reset everything.
+							default:
+								console.info('wclient->updateState() : updating state from "' + self.call.state + '" to "idle" => "' + state + '(unknown)"');
+								// Update internal state
+								self.call.state = self.call.states.enum.idle.state;
+								self.call.muted = false;
+
+								// Update angular state
+								$scope.call.state = self.call.states.enum.idle.state;
+								$scope.call.message = self.call.states.enum.idle.message;
+
+								// Stop and reset timer
+								self.stopTimer();
+
+								// Stop playing ringtone
+								self.stopRingtone();
+								break;
+						}
+					}
+
+					// Converts the current call timer from an integer to a human readable format. For example from 70 to "01:10".
+					convertTimerToHMS() {
+						var self = this;
+						var sec_num = parseInt(self.call.timer.counter, 10);
+						var hours = Math.floor(sec_num / 3600);
+						var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+						var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+						if (hours < 10)
+							hours = '0' + hours;
+						if (minutes < 10)
+							minutes = '0' + minutes;
+						if (seconds < 10)
+							seconds = '0' + seconds;
+
+						if (hours == 0) {
+							return minutes + ':' + seconds;
+						} else {
+							return hours + ':' + minutes + ':' + seconds;
+						}
+					}
+
+					// Starts the current call timer.
+					startTimer() {
+						var self = this;
+
+						if (self.call.timer.handle) {
+							console.error('wclient->startTimer() : Cannot start timer handle is already set');
+							return ;
+						}
+						self.call.timer.handle = $interval(function() {
+							self.call.timer.counter += 1;
+							$scope.call.timer = self.convertTimerToHMS();
+						}, 1000);
+						console.log('wclient->startTimer() : timer started');
+					}
+
+					// Stops and resets the current call timer.
+					stopTimer() {
+						var self = this;
+
+						if (!self.call.timer.handle) {
+							console.error('wclient->stopTimer() : Cannot stop timer handle is not set');
+							return ;
+						}
+						$interval.cancel(self.call.timer.handle);
+						self.call.timer.handle = null;
+						self.call.timer.counter = 0;
+						$scope.call.timer = '00:00';
+						console.log('wclient->stopTimer() : timer stopped');
+					}
+
+					// Sends a call invitation to peer and waits for a "call-accept" or "call-reject" message from the signaling server.
+					inviteCall() {
+						console.log('wclient->inviteCall() : "call-invite" message sent');
+						var self = this;
+
+						self.signaling.emit('call-invite');
+						self.updateState('calling');
+					}
+
+					makeCall() {
+						var self = this;
+
+						self.createPeerConnection();
+						self.getMediaAccess();
+					}
+
+					// Hangs up the current call, kills the webrtc connection if one exists and notifies the peer by sending a "call-hangup" message.
+					hangupCall() {
+						console.log('wclient->hangupCall() : "call-hangup" message sent');
+						var self = this;
+
+						self.signaling.emit('call-hangup');
+						self.updateState('ended');
+						self.destroyPeerConnection();
+					}
+
+					// Sends an "accept-call" message to peer so he can start the WebRTC connection proccess.
+					acceptCall() {
+						console.log('wclient->acceptCall() : "call-accept" message sent');
+						var self = this;
+
+						self.signaling.emit('call-accept');
+						self.updateState('connecting');
+					}
+
+					// Sends an "call-reject" message to peer.
+					rejectCall() {
+						console.log('wclient->rejectCall() : "call-reject" message sent');
+						var self = this;
+
+						self.signaling.emit('call-reject');
+						self.updateState('idle');
+					}
+
+					// Toggles muting / unmuting microphone
+					toggleMuteCall() {
+						this.rtc.localVideo.srcObject.getAudioTracks()[0].enabled = this.call.muted;
+						this.call.muted = !this.call.muted;
+						$scope.call.muted = this.call.muted;
+
+						if (this.call.muted) {
+							console.log('wclient->toggleMuteCall() : call muted');
+						} else {
+							console.log('wclient->toggleMuteCall() : call unmuted');
+						}
+					}
+
+					// Rates the last call on a scale from 1 to 5
+					rateCall(rate) {
+						if (rate > 0 && rate <= 5) {
+							console.log('wclient->rateCall() : rate value "' + rate + '"');
+							this.call.rate = rate;
+						} else {
+							console.log('wclient->rateCall() : invalid rate value "' + rate + '"');
+						}
+						this.updateState('idle');
+					}
+
+					// Create signaling endpoints for socket server
+					createSignalingEndpoints() {
+						// Peer is sending us an invitation to accept the call.
+						this.signaling.on('call-invite', () => {
+							console.log('wclient->signaling() : "call-invite" message received');
+							this.updateState('ringing');
+						});
+
+						// Peer has accepted the incoming call, the webrtc connection process can now start.
+						this.signaling.on('call-accept', () => {
+							console.log('wclient->signaling() : "call-accept" message received');
+							this.updateState('connecting');
+							this.makeCall();
+						});
+
+						// Peer has rejected our call invitation.
+						this.signaling.on('call-reject', () => {
+							console.log('wclient->signaling() : "call-reject" message received');
+							this.updateState('rejected');
+						});
+
+						// Peer has hanged up the call.
+						this.signaling.on('call-hangup', () => {
+							console.log('wclient->signaling() : "call-hangup" message received');
+							this.updateState('ended');
+							this.destroyPeerConnection();
+						});
+
+						// Peer has sent us a new ICE candidate to be added to our peer connection.
+						this.signaling.on('webrtc-ice-candidate', (candidate) => {
+							console.log('wclient->signaling() : "webrtc-ice-candidate" message received');
+							this.addIceCandidate(candidate);
+						});
+
+						// Peer has sent us his local session description to be added to our peer connection.
+						// This is an offer so we need to respond with an answer.
+						this.signaling.on('webrtc-offer', (sdp) => {
+							console.log('wclient->signaling() : "webrtc-offer" message received');
+							this.createAnswer(sdp);
+						});
+
+						// Peer has sent us his local session description to be added to our peer connection.
+						// This is an answer to the offer we sent.
+						this.signaling.on('webrtc-answer', (sdp) => {
+							console.log('wclient->signaling() : "webrtc-answer" message received');
+							this.setRemoteSessionDescription(sdp);
+						});
 					}
 				}
 
-				/*
-				** Call informations
-				*/
-				$scope.call.infos = {};
-				$scope.call.infos.state = 'Click to make a call';
-				$scope.call.infos.timer = '00:00:00';
-				$scope.call.infos.rate = 0;
+				var wclient = new WebcallClient(socket);
 
-				/*
-				** Call timer
-				*/
-				$scope.call.timer = {};
+				wclient.createSignalingEndpoints();
 
-				// Counter
-				$scope.call.timer.timer = 0;
-
-				// Handle for refresh loop
-				$scope.call.timer.handle = null;
-
-				// Convert the counter to human readable format
-				$scope.call.timer.convertToHMS = function(timer) {
-			    var sec_num = parseInt(timer, 10);
-			    var hours = Math.floor(sec_num / 3600);
-			    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-			    var seconds = sec_num - (hours * 3600) - (minutes * 60);
-
-			    if (hours < 10)
-						hours = '0' + hours;
-			    if (minutes < 10)
-						minutes = '0' + minutes;
-			    if (seconds < 10)
-						seconds = '0' + seconds;
-			    return hours + ':' + minutes + ':' + seconds;
-				}
-
-				// Start the refresh loop
-				$scope.call.timer.start = function() {
-					if ($scope.call.timer.handle) return ;
-					$scope.call.timer.handle = $interval(function() {
-						$scope.call.timer.timer += 1;
-						$scope.call.infos.timer = $scope.call.timer.convertToHMS($scope.call.timer.timer);
-					}, 1000);
+				// Setup call informations
+				$scope.call = {
+					state: wclient.call.state,
+					message: wclient.call.states.enum[wclient.call.state].message,
+					timer: '00:00',
+					muted: wclient.call.muted
 				};
 
-				// Stop the refresh loop
-				$scope.call.timer.stop = function() {
-					if (!$scope.call.timer.handle) return ;
-					$interval.cancel($scope.call.timer.handle);
-					$scope.call.timer.handle = null;
-					$scope.call.timer.timer = 0;
-					$scope.call.infos.timer = '00:00:00';
-				};
+				// Setup call handlers
+				$scope.inviteCall = wclient.inviteCall.bind(wclient);
+				$scope.hangupCall = wclient.hangupCall.bind(wclient);
+				$scope.acceptCall = wclient.acceptCall.bind(wclient);
+				$scope.rejectCall = wclient.rejectCall.bind(wclient);
+				$scope.toggleMuteCall = wclient.toggleMuteCall.bind(wclient);
+				$scope.rateCall = wclient.rateCall.bind(wclient);
 
-				/*
-				** Call actions
-				*/
-
-				// Rate call
-				$scope.callRate = function(rate) {
-					console.log('[ ACTION ] Rating call (' + rate + ')');
-					$scope.call.infos.rate = rate;
-					$scope.call.state.updateState('idle');
-				};
-
-				// Send a call invitation
-				$scope.callMake = function() {
-					console.log('[ ACTION ] Making call...');
-					$scope.call.state.updateState('calling');
-					socket.emit('call-invite');
-				};
-
-				// Hangup call
-				$scope.callHangup = function() {
-					console.log('[ ACTION ] Hanging up call...');
-					$scope.call.state.updateState('ended');
-					socket.emit('call-hangup');
-					destroyRTCPeerConnection();
-				};
-
-				// Mute call
-				$scope.callMute = function() {
-					console.log('[ ACTION ] Muting call...');
-				};
-
-				// Unmute call
-				$scope.callUnmute = function() {
-					console.log('[ ACTION ] Unmuting call...');
-				};
-
-				// Setting for call
-				$scope.callSettings = function() {
-					console.log('[ ACTION ] Call settings...');
-				};
-
-				// Answer call
-				$scope.callAnswer = function() {
-					console.log('[ ACTION ] Answering call...');
-					$scope.call.state.updateState('connecting');
-					socket.emit('call-answer');
-				};
-
-				// Reject call
-				$scope.callReject = function() {
-					console.log('[ ACTION ] Rejecting call...');
-					$scope.call.state.updateState('idle');
-					socket.emit('call-reject');
-					destroyRTCPeerConnection();
-				};
-
-				/*
-				** Incoming messages from socket
-				*/
-
-				// Call is incoming
-				socket.on('call-invite', function() {
-					$scope.call.state.updateState('ringing');
-				});
-
-				// Call has been answered
-				socket.on('call-answer', function() {
-					console.log('[ SOCKET ] Call has been anwered');
-					$scope.call.state.updateState('connecting');
-
-					createRTCPeerConnection();
-					handleGetUserMedia();
-				});
-
-				// Call has been rejected
-				socket.on('call-reject', function() {
-					$scope.call.state.updateState('rejected');
-					console.log('[ SOCKET ] Call has been rejected');
-					destroyRTCPeerConnection();
-				});
-
-				// Call has been hanged up
-				socket.on('call-hangup', function() {
-					$scope.call.state.updateState('ended');
-					console.log('[ SOCKET ] Call has been hung up');
-					destroyRTCPeerConnection();
-				});
 			});
 		})();
 		</script>

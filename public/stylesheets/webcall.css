@@ -104,16 +104,6 @@
   font-size: 18px;
 }
 
-.webcall .call-infos .infos-rating {
-  font-size: 24px;
-  color: white;
-}
-
-.webcall .call-infos .infos-rating .fa:hover {
-  color: #4CC417;
-  cursor: pointer;
-}
-
 .webcall .call-actions .action-row {
   display: flex;
   justify-content: center;
@@ -133,6 +123,16 @@
 }
 
 .webcall .call-actions .action-button:hover {
+  cursor: pointer;
+}
+
+#call-rate {
+  font-size: 24px;
+  color: white;
+}
+
+#call-rate .fa:hover {
+  color: #4CC417;
   cursor: pointer;
 }
 
@@ -156,7 +156,7 @@
   background: #E42217;
 }
 
-#call-answer {
+#call-accept {
   border: 1px solid #4CC417;
   background: #4CC417;
 }
@@ -164,11 +164,6 @@
 #call-reject {
   border: 1px solid #E42217;
   background: #E42217;
-}
-
-#call-settings {
-  border: 1px solid gray;
-  background: #181818;
 }
 
 .hide {
