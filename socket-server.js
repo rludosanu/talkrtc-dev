@@ -84,10 +84,32 @@ class SocketServer {
 		self.webcall.on('connection', function(socket) {
 			console.log('[ webcall ] [ ' + socket.id + ' ] New socket connection.');
 
+			socket.emit('user-message', {
+				from: 'TalkRTC Team',
+				content: 'Hi ! Your are now connected to the server. Click anywhere on this message to make it disappear. Enjoy your conference !.'
+			});
+
+			// Temporary room name
 			var room = 'webcall-room';
 
 			// Join room
 			socket.join(room);
+
+			// Check the number of user connected
+			console.log(self.webcall.adapter.rooms[room].length + ' users connected');
+			if (self.webcall.adapter.rooms[room].length == 2) {
+				self.webcall.to(room).emit('user-connect');
+				self.webcall.to(room).emit('user-message', {
+					from: 'TalkRTC Server',
+					content: 'Your correspondent is now connected.'
+				});
+			}
+
+			// Call invitation
+			socket.on('user-message', function(message) {
+				console.log('[ webcall ] [ ' + socket.id + ' ] User message.');
+				socket.to(room).emit('user-message', { from: socket.id, content: message });
+			});
 
 			// Call invitation
 			socket.on('call-invite', function() {
@@ -134,7 +156,12 @@ class SocketServer {
 			// Socket disconnection
 			socket.on('disconnect', function() {
 				console.log('[ webcall ] [ ' + socket.id + ' ] User disconnected.')
-				self.io.to(room).emit('call-hangup');
+				self.webcall.to(room).emit('user-disconnect');
+				self.webcall.to(room).emit('user-message', {
+					from: 'TalkRTC Server',
+					content: 'Your correspondent is now disconnected.'
+				});
+				socket.leave(room);
 			});
 		});
 	}

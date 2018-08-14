@@ -7,6 +7,25 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+body {
+  margin: 0px;
+  padding: 0px;
+  background: white;
+  font-family: 'Quicksand';
+}
+
+input,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Quicksand';
+  font-size: 15px;
+  border: none;
+  color: #333333;
+  padding: 15px;
+  outline: none;
+}
+
 .webcall {
   position: absolute;
   top: 0px;
@@ -19,6 +38,9 @@
   align-items: center;
 }
 
+/*
+** Keypad
+*/
 .webcall .keypad {
   display: none;
 }
@@ -77,6 +99,118 @@
   cursor: pointer;
 }
 
+/*
+** Message
+*/
+
+/* The starting CSS styles for the enter animation */
+.fade.ng-enter {
+  transition: 0.3s linear all;
+  opacity: 0;
+}
+
+/* The finishing CSS styles for the enter animation */
+.fade.ng-enter.ng-enter-active {
+  opacity: 1;
+}
+
+.fade.ng-leave {
+  transition: 0.3s linear all;
+  opacity: 1;
+}
+.fade.ng-leave.ng-leave-active {
+  opacity: 0;
+}
+
+.message {
+
+}
+
+.message-push {
+  position: absolute;
+  z-index: 3;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+}
+
+.message-push:hover {
+  cursor: pointer;
+}
+
+.message-push-container {
+  display: flex;
+  padding: 15px;
+}
+
+.message-push-container .message-icon {
+  margin-right: 15px;
+}
+
+.message-push-container .message-icon-circle {
+  background: #3B84F7;
+  color: white;
+  border-radius: 999px;
+  font-size: 15px;
+  padding: 10px;
+}
+
+.message-push-container .message-from {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.message-push-container .message-text {
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 20px;
+}
+
+.message-compose .message-compose-header {
+  position: absolute;
+  z-index: 2;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: 400;
+  background: #3B84F7;
+  color: white;
+}
+
+.message-compose .message-compose-header div {
+  padding: 0 15px;
+}
+
+.message-compose .message-compose-header div .fa:hover {
+  cursor: pointer;
+}
+
+.message-compose .message-compose-body {
+  position: absolute;
+  z-index: 2;
+  top: 60px;
+  left: 0px;
+  width: 100%;
+  height: calc(100% - 60px);
+}
+
+.message-compose .message-compose-body textarea {
+  height: 100%;
+}
+
+/*
+** Call
+*/
 .webcall .call {
   display: block;
 }
@@ -87,16 +221,42 @@
   margin-bottom: 50px;
 }
 
+.webcall .call-infos .infos-userpic {
+  margin: 0px auto 15px auto;
+  width: 150px;
+  height: 150px;
+  border-radius: 999px;
+  background-image: url('/public/images/user-pic.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.webcall .call-infos .infos-userstate {
+  width: 120px;
+  text-align: right;
+  margin: -44px auto 15px auto;
+  background: none;
+  font-size: 30px;
+}
+
+.webcall .call-infos .infos-userstate .online {
+  color: #4CC417;
+}
+
+.webcall .call-infos .infos-userstate .offline {
+  color: #E42217;
+}
+
 .webcall .call-infos .infos-username {
   color: white;
-  font-size: 32px;
+  font-size: 28px;
   margin-bottom: 5px;
 }
 
 .webcall .call-infos .infos-state {
   color: white;
   font-size: 18px;
-  margin-bottom: 5px;
+  margin-top: 5px;
 }
 
 .webcall .call-infos .infos-timer {
@@ -118,12 +278,15 @@
   padding: 20px;
   border-radius: 999px;
   color: white;
-  -webkit-transition: border 0.5s;
-  transition: border 0.5s;
 }
 
 .webcall .call-actions .action-button:hover {
   cursor: pointer;
+}
+
+#message-send {
+  border: 1px solid #3B84F7;
+  background: #3B84F7;
 }
 
 #call-rate {

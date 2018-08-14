@@ -13,20 +13,56 @@
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
 
 		<!-- Custom stylesheets -->
-    <link rel="stylesheet" type="text/css" href="/public/stylesheets/global.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="/public/stylesheets/global.css" /> -->
 		<link rel="stylesheet" type="text/css" href="/public/stylesheets/webcall.css" />
 
 		<!-- Vendor scripts -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-animate.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-cookies.js"></script>
 		<script src="/public/scripts/socket.io.js"></script>
 	</head>
 	<body ng-controller="webcall">
 		<div class="webcall">
 			<div class="webcall-container">
+				<div class="message">
+					<!-- Push notification -->
+					<div class="message-push fade" ng-if="push.incoming.show == true" ng-click="push.incoming.show = false">
+						<div class="message-push-container">
+							<div class="message-icon">
+								<div class="message-icon-circle">
+									<span class="fa fa-fw fa-paper-plane"></span>
+								</div>
+							</div>
+							<div>
+								<div class="message-from">{{ push.incoming.from }}</div>
+								<div class="message-text">{{ push.incoming.content }}</div>
+							</div>
+						</div>
+					</div>
+					<!-- END Push notification -->
+
+					<!-- Compose push notification -->
+					<div class="message-compose fade" ng-if="push.outgoing.show == true">
+						<div class="message-compose-header">
+							<div ng-click="push.outgoing.show = false"><span class="fa fa-fw fa-times"></span></div>
+							<div>Push!</div>
+							<div ng-click="sendPush()"><span class="fa fa-fw fa-paper-plane"></span></div>
+						</div>
+						<div class="message-compose-body">
+							<textarea placeholder="Type your message here..." ng-model="push.outgoing.content"></textarea>
+						</div>
+					</div>
+					<!-- END Compose push notification -->
+				</div>
+
 				<div class="call">
 		      <div class="call-infos">
-						<div class="infos-username"></div>
+						<div class="infos-userpic"></div>
+						<div class="infos-userstate">
+							<span class="fa fa-fw fa-circle offline" ng-class="{'online': call.paired == true, 'offline': call.paired == false}"></span>
+						</div>
+						<div class="infos-username">Razvan Ludosanu</div>
 						<video id="local-video" muted="muted" width="320px" height="240px" style="display: none;"></video>
 						<video id="remote-video" width="320px" height="240px" style="display: none;"></video>
 						<div class="infos-state" ng-hide="call.state === 'ongoing'">{{ call.message }}</div>
@@ -69,6 +105,12 @@
 									<span class="fa fa-fw fa-microphone-slash"></span>
 								</div>
 							</div>
+							<!-- Send push message -->
+							<div class="action-item" ng-show="call.state === 'idle' || call.state === 'rejected' || call.state === 'failed'">
+								<div id="message-send" class="action-button" ng-click="push.outgoing.show = true">
+									<span class="fa fa-fw fa-paper-plane"></span>
+								</div>
+							</div>
 							<!-- Invite call -->
 							<div class="action-item" ng-show="call.state === 'idle' || call.state === 'rejected' || call.state === 'failed'">
 								<div id="call-make" class="action-button" ng-click="inviteCall()">
@@ -89,7 +131,7 @@
 
 		<script>
 		(function() {
-			var app = angular.module('app', ['ngCookies']);
+			var app = angular.module('app', ['ngCookies', 'ngAnimate']);
 
 			// Angular factory for socket.io defined as "socket"
 		  app.factory('socket', function ($rootScope) {
@@ -117,7 +159,7 @@
 		    };
 		  });
 
-			app.controller('webcall', function($scope, $http, $window, $location, $cookies, $interval, socket) {
+			app.controller('webcall', function($scope, $http, $window, $location, $cookies, $interval, $timeout, socket) {
 				class WebcallClient {
 					constructor(signaling) {
 						// Compatibility
@@ -129,7 +171,7 @@
 							states: {
 								enum: {
 									idle: {
-										message: 'Click to make call.',
+										message: 'Send a message or make a call.',
 										state: 'idle'
 									},
 									calling: {
@@ -172,7 +214,8 @@
 							},
 							ringtone: new Audio('/public/sounds/ringtone.mp3'),
 							rate: 0,
-							muted: false
+							muted: false,
+							paired: false
 						};
 
 						// WebRTC
@@ -817,8 +860,47 @@
 						this.updateState('idle');
 					}
 
+					// Sends a push message
+					sendPush() {
+						console.log($scope.push.outgoing.content);
+
+						if ($scope.push.outgoing.content) {
+							console.log('wclient->sendPush() : "user-message" message sent');
+							this.signaling.emit('user-message', $scope.push.outgoing.content);
+							$scope.push.outgoing.content = '';
+							$scope.push.outgoing.show = false;
+						}
+					}
+
 					// Create signaling endpoints for socket server
 					createSignalingEndpoints() {
+						//
+						this.signaling.on('user-message', (message) => {
+							console.log('wclient->signaling() : "user-message" message received');
+							$scope.push.incoming.from = message.from;
+							$scope.push.incoming.content = message.content;
+							$scope.push.incoming.show = true;
+							$timeout(function() {
+								$scope.push.incoming.show = false;
+							}, 3500);
+						});
+
+						//
+						this.signaling.on('user-connect', () => {
+							console.log('wclient->signaling() : "user-connect" message received');
+							this.rtc.paired = true;
+							$scope.call.paired = true;
+						});
+
+						//
+						this.signaling.on('user-disconnect', () => {
+							console.log('wclient->signaling() : "user-disconnect" message received');
+							this.rtc.paired = false;
+							$scope.call.paired = false;
+							this.updateState('failed');
+							this.destroyPeerConnection();
+						});
+
 						// Peer is sending us an invitation to accept the call.
 						this.signaling.on('call-invite', () => {
 							console.log('wclient->signaling() : "call-invite" message received');
@@ -876,7 +958,22 @@
 					state: wclient.call.state,
 					message: wclient.call.states.enum[wclient.call.state].message,
 					timer: '00:00',
-					muted: wclient.call.muted
+					muted: wclient.call.muted,
+					paired: wclient.call.paired
+				};
+
+				$scope.push = {
+					handle: null,
+					incoming: {
+						show: false,
+						from: '',
+						content: ''
+					},
+					outgoing: {
+						show: false,
+						from: '',
+						content: ''
+					}
 				};
 
 				// Setup call handlers
@@ -886,6 +983,7 @@
 				$scope.rejectCall = wclient.rejectCall.bind(wclient);
 				$scope.toggleMuteCall = wclient.toggleMuteCall.bind(wclient);
 				$scope.rateCall = wclient.rateCall.bind(wclient);
+				$scope.sendPush = wclient.sendPush.bind(wclient);
 
 			});
 		})();
