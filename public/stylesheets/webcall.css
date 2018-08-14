@@ -7,10 +7,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+/*
+** Global
+*/
 body {
   margin: 0px;
   padding: 0px;
-  background: white;
+  background: #181818;
   font-family: 'Quicksand';
 }
 
@@ -26,84 +29,9 @@ textarea {
   outline: none;
 }
 
-.webcall {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-  background: #181818;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 /*
-** Keypad
+** Angular animation(s)
 */
-.webcall .keypad {
-  /* display: none; */
-}
-
-.webcall .keypad-infos {
-  margin: auto;
-  text-align: center;
-  color: white;
-  font-weight: 300;
-}
-
-.webcall .keypad-infos .keypad-title {
-  font-size: 24px;
-  margin-bottom: 15px;
-}
-
-.webcall .keypad-infos .keypad-secret {
-  font-size: 32px;
-  letter-spacing: 6px;
-}
-
-.webcall .keypad-pad {
-  margin: auto;
-}
-
-.webcall .keypad-pad .keypad-row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.webcall .keypad-pad .keypad-item {
-  width: 60px;
-  margin: 15px;
-}
-
-.webcall .keypad-pad .keypad-item .keypad-number {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 60px;
-  height: 60px;
-  color: white;
-  font-size: 20px;
-  font-weight: 500;
-  /* border: 1px solid #181818; */
-  text-align: center;
-  border-radius: 999px;
-  -webkit-transition: background 0.5s;
-  transition: border background 0.5s;
-}
-
-.webcall .keypad-pad .keypad-item .keypad-number:hover {
-  /* border: 1px solid white; */
-  background: rgba(229, 228, 226, 0.5);
-  cursor: pointer;
-}
-
-/*
-** Message
-*/
-
-/* The starting CSS styles for the enter animation */
 .fade.ng-enter {
   transition: 0.3s linear all;
   opacity: 0;
@@ -122,11 +50,10 @@ textarea {
   opacity: 0;
 }
 
-.message {
-
-}
-
-.message-push {
+/*
+** Push app
+*/
+#app-push {
   position: absolute;
   z-index: 3;
   top: 0px;
@@ -138,20 +65,20 @@ textarea {
   color: white;
 }
 
-.message-push:hover {
+#app-push:hover {
   cursor: pointer;
 }
 
-.message-push-container {
+#app-push .container {
   display: flex;
   padding: 15px;
 }
 
-.message-push-container .message-icon {
+#app-push .container .icon {
   margin-right: 15px;
 }
 
-.message-push-container .message-icon-circle {
+#app-push .container .icon .circle {
   background: #3B84F7;
   color: white;
   border-radius: 999px;
@@ -159,19 +86,26 @@ textarea {
   padding: 10px;
 }
 
-.message-push-container .message-from {
+#app-push .container .message .from {
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 5px;
 }
 
-.message-push-container .message-text {
+#app-push .container .message .text {
   font-size: 15px;
   font-weight: 300;
   line-height: 20px;
 }
 
-.message-compose .message-compose-header {
+/*
+** Compose app
+*/
+#app-compose {
+  background: white;
+}
+
+#app-compose .header {
   position: absolute;
   z-index: 2;
   top: 0px;
@@ -187,15 +121,15 @@ textarea {
   color: white;
 }
 
-.message-compose .message-compose-header div {
+#app-compose .header div {
   padding: 0 15px;
 }
 
-.message-compose .message-compose-header div .fa:hover {
+#app-compose .header div .fa:hover {
   cursor: pointer;
 }
 
-.message-compose .message-compose-body {
+#app-compose .body {
   position: absolute;
   z-index: 2;
   top: 60px;
@@ -204,24 +138,32 @@ textarea {
   height: calc(100% - 60px);
 }
 
-.message-compose .message-compose-body textarea {
+#app-compose .body textarea {
   height: 100%;
 }
 
 /*
-** Call
+** Call app
 */
-.webcall .call {
-  display: block;
+#app-call {
+  position: absolute;
+  z-index: 1;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.webcall .call-infos {
+#app-call .infos {
   text-align: center;
   font-weight: 300;
   margin-bottom: 50px;
 }
 
-.webcall .call-infos .infos-userpic {
+#app-call .infos .userpic {
   margin: 0px auto 15px auto;
   width: 150px;
   height: 150px;
@@ -231,7 +173,7 @@ textarea {
   background-position: center;
 }
 
-.webcall .call-infos .infos-userstate {
+#app-call .infos .userstate {
   width: 120px;
   text-align: right;
   margin: -44px auto 15px auto;
@@ -239,51 +181,58 @@ textarea {
   font-size: 30px;
 }
 
-.webcall .call-infos .infos-userstate .online {
+#app-call .infos .userstate .online {
   color: #4CC417;
 }
 
-.webcall .call-infos .infos-userstate .offline {
+#app-call .infos .userstate .offline {
   color: #E42217;
 }
 
-.webcall .call-infos .infos-username {
+#app-call .infos .username {
   color: white;
   font-size: 28px;
   margin-bottom: 5px;
 }
 
-.webcall .call-infos .infos-state {
+#app-call .infos .callstate {
   color: white;
   font-size: 18px;
   margin-top: 5px;
 }
 
-.webcall .call-infos .infos-timer {
+#app-call .infos .calltimer {
   color: white;
   font-size: 18px;
 }
 
-.webcall .call-actions .action-row {
+#app-call .actions .row {
   display: flex;
   justify-content: center;
 }
 
-.webcall .call-actions .action-item {
+#app-call .actions .row .item {
   margin: 15px;
 }
 
-.webcall .call-actions .action-button {
+#app-call .actions .row .item .button {
   font-size: 20px;
   padding: 20px;
   border-radius: 999px;
   color: white;
 }
 
-.webcall .call-actions .action-button:hover {
+#app-call .actions .row .item .button:hover {
   cursor: pointer;
 }
 
+#app-call .videos {
+  display: none;
+}
+
+/*
+** Action button handlers
+*/
 #message-send {
   border: 1px solid #3B84F7;
   background: #3B84F7;
@@ -329,6 +278,56 @@ textarea {
   background: #E42217;
 }
 
-.hide {
-  display: none;
+/* Keypad */
+/*
+.webcall .keypad-infos {
+  margin: auto;
+  text-align: center;
+  color: white;
+  font-weight: 300;
 }
+
+.webcall .keypad-infos .keypad-title {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.webcall .keypad-infos .keypad-secret {
+  font-size: 32px;
+  letter-spacing: 6px;
+}
+
+.webcall .keypad-pad {
+  margin: auto;
+}
+
+.webcall .keypad-pad .keypad-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.webcall .keypad-pad .keypad-item {
+  width: 60px;
+  margin: 15px;
+}
+
+.webcall .keypad-pad .keypad-item .keypad-number {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  color: white;
+  font-size: 20px;
+  font-weight: 500;
+  text-align: center;
+  border-radius: 999px;
+  -webkit-transition: background 0.5s;
+  transition: border background 0.5s;
+}
+
+.webcall .keypad-pad .keypad-item .keypad-number:hover {
+  background: rgba(229, 228, 226, 0.5);
+  cursor: pointer;
+}*/
