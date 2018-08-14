@@ -42,7 +42,7 @@ textarea {
 ** Keypad
 */
 .webcall .keypad {
-  display: none;
+  /* display: none; */
 }
 
 .webcall .keypad-infos {

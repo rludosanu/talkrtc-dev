@@ -25,6 +25,115 @@
 	<body ng-controller="webcall">
 		<div class="webcall">
 			<div class="webcall-container">
+
+				<!-- Push messages -->
+				<!-- <div class="push fade" ng-if="push.show == true" ng-click="push.show = false">
+					<div class="push-container">
+						<div class="push-icon">
+							<div class="circle">
+								<span class="fa fa-fw fa-paper-plane"></span>
+							</div>
+						</div>
+
+						<div class="push-message">
+							<div class="from">{{ push.from }}</div>
+							<div class="text">{{ push.content }}</div>
+						</div>
+					</div>
+				</div> -->
+				<!-- END Push messages -->
+
+				<!-- Compose message -->
+				<!-- <div class="compose fade" ng-if="push.outgoing.show == true">
+					<div class="compose-header">
+						<div ng-click="push.outgoing.show = false">
+							<span class="fa fa-fw fa-times"></span>
+						</div>
+						<div>Push!</div>
+						<div ng-click="sendPush()">
+							<span class="fa fa-fw fa-paper-plane"></span>
+						</div>
+					</div>
+
+					<div class="compose-body">
+						<textarea placeholder="Type your message here..." ng-model="push.outgoing.content"></textarea>
+					</div>
+				</div> -->
+				<!-- END Compose message -->
+
+				<!-- Call interface -->
+				<!-- <div class="call">
+					<div class="call-infos">
+						<div class="user-pic"></div>
+						<div class="user-state">
+							<span class="fa fa-fw fa-circle offline" ng-class="{'online': call.paired == true, 'offline': call.paired == false}"></span>
+						</div>
+						<div class="user-name">Razvan Ludosanu</div>
+						<div class="call-state" ng-hide="call.state === 'ongoing'">{{ call.message }}</div>
+						<div class="call-timer" ng-show="call.state === 'ongoing'">{{ call.timer }}</div>
+					</div>
+
+					<div class="call-actions">
+						<div class="row" ng-show="call.state === 'ended'">
+							<div id="call-rate">
+								<span class="fa fa-fw fa-star" ng-click="rateCall(1)"></span>
+								<span class="fa fa-fw fa-star" ng-click="rateCall(2)"></span>
+								<span class="fa fa-fw fa-star" ng-click="rateCall(3)"></span>
+								<span class="fa fa-fw fa-star" ng-click="rateCall(4)"></span>
+								<span class="fa fa-fw fa-star" ng-click="rateCall(5)"></span>
+							</div>
+						</div>
+
+						<div class="row" ng-show="call.state === 'ringing'">
+							<div class="item">
+								<div id="call-reject" class="action-button" ng-click="rejectCall()">
+									<span class="fa fa-fw fa-times"></span>
+								</div>
+							</div>
+							<div class="item">
+								<div id="call-accept" class="action-button" ng-click="acceptCall()">
+									<span class="fa fa-fw fa-check"></span>
+								</div>
+							</div>
+						</div>
+
+						<div class="action-row" ng-show="call.state !== 'ringing'">
+							<div class="item" ng-show="call.state === 'idle' || call.state === 'rejected' || call.state === 'failed'">
+								<div id="message-send" class="button" ng-click="push.outgoing.show = true">
+									<span class="fa fa-fw fa-paper-plane"></span>
+								</div>
+							</div>
+							<div class="item" ng-show="call.state === 'ongoing' && call.muted === false">
+								<div id="call-mute" class="button" ng-click="toggleMuteCall()">
+									<span class="fa fa-fw fa-microphone"></span>
+								</div>
+							</div>
+							<div class="item" ng-show="call.state === 'ongoing' && call.muted === true">
+								<div id="call-unmute" class="button" ng-click="toggleMuteCall()">
+									<span class="fa fa-fw fa-microphone-slash"></span>
+								</div>
+							</div>
+							<div class="item" ng-show="call.state === 'idle' || call.state === 'rejected' || call.state === 'failed'">
+								<div id="call-make" class="button" ng-click="inviteCall()">
+									<span class="fa fa-fw fa-phone"></span>
+								</div>
+							</div>
+							<div class="item" ng-show="call.state === 'calling' || call.state === 'connecting' || call.state === 'ongoing'">
+								<div id="call-hangup" class="button" ng-click="hangupCall()">
+									<span class="fa fa-fw fa-phone"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="call-videos" class="hide">
+						<video id="local-video" muted="muted"></video>
+						<video id="remote-video"></video>
+					</div>
+				</div> -->
+				<!-- END Call interface -->
+
+
 				<div class="message">
 					<!-- Push notification -->
 					<div class="message-push fade" ng-if="push.incoming.show == true" ng-click="push.incoming.show = false">
@@ -862,8 +971,6 @@
 
 					// Sends a push message
 					sendPush() {
-						console.log($scope.push.outgoing.content);
-
 						if ($scope.push.outgoing.content) {
 							console.log('wclient->sendPush() : "user-message" message sent');
 							this.signaling.emit('user-message', $scope.push.outgoing.content);
@@ -874,25 +981,25 @@
 
 					// Create signaling endpoints for socket server
 					createSignalingEndpoints() {
-						//
+						// Incoming message either from server or from peer
 						this.signaling.on('user-message', (message) => {
 							console.log('wclient->signaling() : "user-message" message received');
 							$scope.push.incoming.from = message.from;
 							$scope.push.incoming.content = message.content;
 							$scope.push.incoming.show = true;
-							$timeout(function() {
-								$scope.push.incoming.show = false;
-							}, 3500);
+							// $timeout(function() {
+							// 	$scope.push.incoming.show = false;
+							// }, 4000);
 						});
 
-						//
+						// Peer is connected to the room
 						this.signaling.on('user-connect', () => {
 							console.log('wclient->signaling() : "user-connect" message received');
 							this.rtc.paired = true;
 							$scope.call.paired = true;
 						});
 
-						//
+						// Peer is disconnected from the room
 						this.signaling.on('user-disconnect', () => {
 							console.log('wclient->signaling() : "user-disconnect" message received');
 							this.rtc.paired = false;
