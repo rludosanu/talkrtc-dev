@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="app">
 	<head>
   	<!-- Title -->
 		<title>TalkRTC</title>
@@ -13,102 +13,110 @@
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
 
 		<!-- Custom stylesheets -->
-		<link rel="stylesheet" type="text/css" href="/public/stylesheets/global.css" />
     <link rel="stylesheet" type="text/css" href="/public/stylesheets/index.css" />
+
+		<!-- Vendor scritps -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular.js"></script>
 	</head>
-	<body>
-		<div class="navbar">
-		  <div class="navbar-container">
-		    <div class="navbar-brand">
+	<body ng-controller="conferenceCreate">
+		<div id="background"></div>
+		<div id="navbar">
+			<div class="container">
+		    <div class="logo">
 		      <a href="/">
-		        <span class="fa fa-cloud fa-fw"></span>
+		        <span class="fa fa-circle-o-notch fa-fw"></span>
 		      </a>
 		    </div>
-		    <div class="navbar-nav">
+				<div class="brand">
+					<a href="/">
+						TalkRTC
+					</a>
+				</div>
+		    <div class="nav">
 		      <ul>
-		        <li><a href="/">Premium</a></li>
+						<li><a href="https://github.com/rludosanu/talkrtc-dev" target="_blank">Github repository</a></li>
+		        <li><a href="https://www.linkedin.com/in/razvan-ludosanu/" target="_blank">Linkedin profile</a></li>
 		      </ul>
 		    </div>
 		  </div>
 		</div>
-
-		<div class="jumbo">
-			<div class="jumbo-body">
-				<div class="jumbo-title">Prospecting made easy</div>
-				<div class="jumbo-text">TalkRTC allows you to exchange instant messages, audio and video calls using the innovative WebRTC technology.</div>
-				<div class="jumbo-buttons">
-					<div class="jumbo-buttons-button">
-						<a href="/create">
-							<div class="jumbo-buttons-icon">
+		<div id="jumbo">
+			<div class="jumbo-container">
+				<div class="jumbo-presentation">
+					<div class="title">Prospecting made easy</div>
+					<div class="subtitle">TalkRTC allows you to exchange instant messages, audio and video calls using the innovative WebRTC technology with just a few informations.</div>
+					<div class="buttons">
+						<div class="button">
+							<div class="icon">
 								<span class="fa fa-fw fa-paper-plane"></span>
 							</div>
-						</a>
-						<div class="jumbo-buttons-text">
-							MESSAGING
+							<div class="text">
+								MESSAGING
+							</div>
 						</div>
-					</div>
-					<div class="jumbo-buttons-button">
-						<a href="/create">
-							<div class="jumbo-buttons-icon">
+						<div class="button">
+							<div class="icon">
 								<span class="fa fa-fw fa-phone"></span>
 							</div>
-						</a>
-						<div class="jumbo-buttons-text">
-							AUDIO CALL
+							<div class="text">
+								AUDIO CALL
+							</div>
 						</div>
-					</div>
-					<div class="jumbo-buttons-button">
-						<a href="/create">
-							<div class="jumbo-buttons-icon">
+						<div class="button">
+							<div class="icon">
 								<span class="fa fa-fw fa-video-camera"></span>
 							</div>
-						</a>
-						<div class="jumbo-buttons-text">
-							VIDEO CHAT
+							<div class="text">
+								VIDEO CHAT
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="jumbo-conference">
+					<div class="container">
+						<div class="header">
+							<div ng-show="conference.created == false">
+								<div class="title">Let's get started.</div>
+								<div class="subtitle">Create a new conference and start exchanging right away !</div>
+							</div>
+							<div ng-show="conference.created == true">
+								<div class="title">That's it&nbsp;<span class="fa fa-fw fa-thumbs-o-up"></span>&nbsp;!</div>
+							</div>
+						</div>
+						<div class="body">
+							<form ng-submit="submit()" ng-show="conference.created == false">
+								<div class="jumbo-label">Your email address</div>
+								<input type="email" class="jumbo-input" placeholder="hostemail@domain.com" ng-model="conference.host.email" />
+								<div class="jumbo-label">Your full name</div>
+								<input type="text" class="jumbo-input" placeholder="Firstname Lastname" ng-model="conference.host.name" />
+								<div class="jumbo-label">Your guest email address</div>
+								<input type="email" class="jumbo-input" placeholder="guestemail@domain.com" ng-model="conference.guest.email" />
+								<div class="jumbo-label">Your guest full name</div>
+								<input type="text" class="jumbo-input" placeholder="Firstname Lastname" ng-model="conference.guest.name" />
+								<div class="jumbo-label">Conference date</div>
+								<input type="date" class="jumbo-input" ng-model="conference.date" />
+								<div class="jumbo-label">Time of the day</div>
+								<input type="time" class="jumbo-input" ng-model="conference.time" />
+								<input type="submit" class="jumbo-button" value="Send invitation" />
+							</form>
+							<p ng-show="conference.created == true">
+								Your conference has been created.
+								<br /><br />
+								We just sent you and your guest an email explaning how to join the conference room.
+								<br />
+								If you don't receive anything in the next few minutes check your spam folder.
+								<br /><br />
+								Got any questions or suggestions ? Send us an email at talkrtc@gmail.com !
+								<br /><br />
+								Enjoy your conference,<br />TalkRTC Team.
+							</p>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="bulletpoints">
-			<div class="bulletpoints-header">
-				<div class="title">Anywhere. Anytime. Worldwide.</div>
-				<div class="text">Forget about phone numbers, TalkRTC uses the latest technologies the internet has to offer to connect you and your prospects using an email address only.</div>
-			</div>
-			<div class="bulletpoints-body">
-				<div class="item">
-					<div class="item-body">
-						<div class="item-icon"><span class="fa fa-fw fa-cog"></span></div>
-						<div class="item-title">Easy setup</div>
-						<div class="item-text">WebRTC technology is already embedded into every modern web browser, it just works. No setup or plugin installation required.</div>
-					</div>
-				</div>
-
-				<div class="item">
-					<div class="item-body">
-						<div class="item-icon"><span class="fa fa-fw fa-area-chart"></span></div>
-						<div class="item-title">Unlimited traffic</div>
-						<div class="item-text">Whether you have ten or a thousand conferences a month, your business matters the same for us.</div>
-					</div>
-				</div>
-
-				<div class="item">
-					<div class="item-body">
-						<div class="item-icon"><span class="fa fa-fw fa-calendar-check-o"></span></div>
-						<div class="item-title">Account free</div>
-						<div class="item-text">Your prospects will automatically receive the invitation link by email with a secret password to connect the conference room. No registration needed.</div>
-					</div>
-				</div>
-
-				<div class="item">
-					<div class="item-body">
-						<div class="item-icon"><span class="fa fa-fw fa-lock"></span></div>
-						<div class="item-title">Privacy matters</div>
-						<div class="item-text">An email address is all you need to get started with your prospects. No need for phone numbers or any other private informations.</div>
-					</div>
-				</div>
-			</div>
-		</div>
+		<!-- Conference controller -->
+		<script src="/public/controllers/conference.js"></script>
 	</body>
 </html>
