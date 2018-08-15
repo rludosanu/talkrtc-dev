@@ -812,6 +812,12 @@
           console.log('wclient->signaling() : "webrtc-answer" message received');
           this.setRemoteSessionDescription(sdp);
         });
+
+        this.signaling.on('disconnect', function() {
+          $scope.isLoggedIn = false;
+          this.updateState('ended');
+          this.destroyPeerConnection();
+        });
       }
     }
 

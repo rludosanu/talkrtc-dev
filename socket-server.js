@@ -61,8 +61,11 @@ class SocketServer {
 			// Call invitation
 			socket.on('user-message', function(message) {
 				console.log('[' + socket.id + '] User message "' + message + '"');
-				var username = (socket.conference.role == 'host') ? socket.conference.hostName : socket.conference.guestName;
 
+				var username = null;
+
+				if (!socket.conference) return ;
+				username = (socket.conference.role == 'host') ? socket.conference.hostName : socket.conference.guestName;
 				socket.to(socket.conference.token).emit('user-message', {
 					from: username,
 					content: message
@@ -73,6 +76,7 @@ class SocketServer {
 			socket.on('call-invite', function() {
 				console.log('[' + socket.id + '] Call invitation.');
 
+				if (!socket.conference) return ;
 				socket.to(socket.conference.token).emit('call-invite');
 			});
 
@@ -80,6 +84,7 @@ class SocketServer {
 			socket.on('call-hangup', function() {
 				console.log('[' + socket.id + '] Call hanged up');
 
+				if (!socket.conference) return ;
 				socket.to(socket.conference.token).emit('call-hangup');
 			});
 
@@ -87,6 +92,7 @@ class SocketServer {
 			socket.on('call-accept', function() {
 				console.log('[' + socket.id + '] Call accepted.');
 
+				if (!socket.conference) return ;
 				socket.to(socket.conference.token).emit('call-accept');
 			});
 
@@ -94,6 +100,7 @@ class SocketServer {
 			socket.on('call-reject', function() {
 				console.log('[' + socket.id + '] Call rejected.');
 
+				if (!socket.conference) return ;
 				socket.to(socket.conference.token).emit('call-reject');
 			});
 
@@ -101,6 +108,7 @@ class SocketServer {
 	    socket.on('webrtc-offer', function(sdp) {
         console.log('[' + socket.id + '] WebRTC offer.');
 
+				if (!socket.conference) return ;
         socket.to(socket.conference.token).emit('webrtc-offer', sdp);
 	    });
 
@@ -108,6 +116,7 @@ class SocketServer {
 	    socket.on('webrtc-answer', function(sdp) {
 				console.log('[ webcall ] [ ' + socket.id + ' ] WebRTC answer.');
 
+				if (!socket.conference) return ;
         socket.to(socket.conference.token).emit('webrtc-answer', sdp);
 	    });
 
@@ -115,6 +124,7 @@ class SocketServer {
 	    socket.on('webrtc-ice-candidate', function(candidate) {
 				console.log('[' + socket.id + '] WebRTC ICE candidate');
 
+				if (!socket.conference) return ;
         socket.to(socket.conference.token).emit('webrtc-ice-candidate', candidate);
 	    });
 
@@ -122,19 +132,13 @@ class SocketServer {
 			socket.on('disconnect', function() {
 				console.log('[' + socket.id + '] User disconnected.');
 
-				if (!socket.conference) {
-					return;
-				}
-
+				if (!socket.conference) return ;
 				self.webcall.to(socket.conference.token).emit('user-disconnect');
-
 				self.webcall.to(socket.conference.token).emit('user-message', {
 					from: 'TalkRTC Server',
 					content: 'Your correspondent is now disconnected.'
 				});
-
 				socket.leave(socket.conference.token);
-
 				socket.conference = null;
 			});
 		});

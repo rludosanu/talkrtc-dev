@@ -17,7 +17,7 @@ module.exports = {
     password: 'admin'
   },
   models: {
-    sync: true
+    sync: false
   },
   mail: {
     service: 'gmail',

@@ -24,12 +24,12 @@
       date: '',
       time: '',
       host: {
-        email: 'talkrtc@gmail.com',
-        name: 'TalkRTC Team'
+        email: '',
+        name: ''
       },
       guest: {
-        email: 'r.ludosanu@gmail.com',
-        name: 'Razvan Ludosanu'
+        email: '',
+        name: ''
       },
       created: false
     };
