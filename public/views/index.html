@@ -1,80 +1,99 @@
 <!DOCTYPE html>
 <html ng-app="app">
 	<head>
-  	<!-- Title -->
 		<title>TalkRTC</title>
-
-		<!-- Metas -->
     <meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, user-scalable=no">
-
-		<!-- Vendor stylesheets -->
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans|Quicksand:300,400,500,700" rel="stylesheet" />
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
-
-		<!-- Extra small devices (phones, 600px and down) -->
 		<link rel="stylesheet" media="only screen and (max-width: 600px)" href="/public/stylesheets/xs-screen.css" type="text/css" />
-
-		<!-- Small devices (portrait tablets and large phones, 600px and up) -->
 		<link rel="stylesheet" media="only screen and (min-width: 600px) and (max-width: 768px)" href="/public/stylesheets/s-screen.css" type="text/css" />
-
-		<!-- Medium devices (landscape tablets, 768px and up) -->
 		<link rel="stylesheet" media="only screen and (min-width: 768px) and (max-width: 992px)" href="/public/stylesheets/m-screen.css" type="text/css" />
-
-		<!-- Large devices (laptops/desktops, 992px and up) -->
 		<link rel="stylesheet" media="only screen and (min-width: 992px) and (max-width: 1600px)" href="/public/stylesheets/l-screen.css" type="text/css" />
-
-		<!-- Extra large devices (large laptops and desktops, 1200px and up) -->
 		<link rel="stylesheet" media="only screen and (min-width: 1600px)" href="/public/stylesheets/xl-screen.css" type="text/css" />
-
-		<!-- Vendor scritps -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular.js"></script>
 	</head>
 	<body ng-controller="conferenceCreate">
+		<!-- Fixed background image -->
 		<div id="background"></div>
+		<!-- END Fixed background image -->
 
+		<!-- Main wrapper -->
 		<div class="g-wrapper">
 			<div class="g-container">
 				<div class="g-content">
+					<!-- Header -->
 					<header id="navbar">
 						<div id="navbar-container">
-							<div class="logo"><a href="/"><span class="fa fa-circle-o-notch fa-fw"></span></a></div>
-							<div class="brand"><a href="/">TalkRTC</a></div>
+							<div class="logo">
+								<a href="/">
+									<span class="fa fa-circle-o-notch fa-fw"></span>
+								</a>
+							</div>
+							<div class="brand">
+								<a href="/">
+									TalkRTC
+								</a>
+							</div>
 					    <div class="nav">
 					      <ul>
-									<li><a href="https://github.com/rludosanu/talkrtc-dev" target="_blank">Github repository</a></li>
-					        <li><a href="https://www.linkedin.com/in/razvan-ludosanu/" target="_blank">Linkedin profile</a></li>
+									<li>
+										<a href="https://github.com/rludosanu/talkrtc-dev" target="_blank">
+											Github repository
+										</a>
+									</li>
+					        <li>
+										<a href="https://www.linkedin.com/in/razvan-ludosanu/" target="_blank">
+											Linkedin profile
+										</a>
+									</li>
 					      </ul>
 					    </div>
 					  </div>
 					</header>
+					<!-- END Header  -->
 				</div>
 			</div>
 			<div class="g-container">
+				<!-- Jumbotron -->
 				<div id="jumbotron">
 					<div id="jumbotron-flex">
-
+						<!-- Jumbotron header -->
 						<div id="jumbotron-header">
 							<div class="g-content">
 								<h1>Prospecting made easy</h1>
 								<p>Forget about emails, phone numbers and accounts. TalkRTC allows you to exchange instant messages, audio and video calls worldwide using the innovative WebRTC technology with just a few informations.</p>
 								<ul>
 									<li>
-										<div class="icon"><span class="fa fa-fw fa-paper-plane"></span></div>
-										<div class="caption">MESSAGING</div>
+										<div class="icon">
+											<span class="fa fa-fw fa-paper-plane"></span>
+										</div>
+										<div class="caption">
+											MESSAGING
+										</div>
 									</li>
 									<li>
-										<div class="icon"><span class="fa fa-fw fa-phone"></span></div>
-										<div class="caption">AUDIO CALL</div>
+										<div class="icon">
+											<span class="fa fa-fw fa-phone"></span>
+										</div>
+										<div class="caption">
+											AUDIO CALL
+										</div>
 									</li>
 									<li>
-										<div class="icon"><span class="fa fa-fw fa-video-camera"></span></div>
-										<div class="caption">VIDEO CHAT</div>
+										<div class="icon">
+											<span class="fa fa-fw fa-video-camera"></span>
+										</div>
+										<div class="caption">
+											VIDEO CHAT
+										</div>
 									</li>
 								</ul>
 							</div>
 						</div>
+						<!-- END Jumbotron header -->
 
+						<!-- Jumbotron form -->
 						<div id="jumbotron-form">
 							<div class="g-content">
 								<div id="jumbotron-form-header">
@@ -104,11 +123,15 @@
 								</form>
 							</div>
 						</div>
+						<!-- Jumbotron form -->
 					</div>
 				</div>
+				<!-- END Jumbotron -->
 			</div>
 		</div>
+		<!-- END Main wrapper -->
 
+		<!-- Angularjs conference controller -->
 		<script src="/public/controllers/conference.js"></script>
 	</body>
 </html>
