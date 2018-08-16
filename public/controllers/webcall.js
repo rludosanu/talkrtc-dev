@@ -35,9 +35,13 @@
 
         // Call state
         this.call = {
-          state: 'idle',
+          state: 'waiting',
           states: {
             enum: {
+              waiting: {
+                message: 'Waiting for your correspondant to connect.',
+                state: 'waiting'
+              },
               idle: {
                 message: 'Send a message or make a call.',
                 state: 'idle'
@@ -431,6 +435,28 @@
         var self = this;
 
         switch(state) {
+          // On "waiting" the user is waiting for the peer to connect
+          case self.call.states.enum.waiting.state:
+            // Do nothing if the current state is the next state
+            if (self.call.state === self.call.states.enum.waiting.state) return ;
+
+            console.info('wclient->updateState() : updating state from "' + self.call.state + '" to "' + state + '"');
+            // Update internal state
+            self.call.state = state;
+            self.call.muted = false;
+
+            // Update angular state
+            $scope.call.state = state;
+            $scope.call.message = self.call.states.enum.waiting.message;
+
+            // Stop and reset timer
+            self.stopTimer();
+
+            // Stop playing ringtone
+            self.stopRingtone();
+            break;
+
+
           // On "idle" either us or the peer can start a new call.
           case self.call.states.enum.idle.state:
             // Do nothing if the current state is the next state
@@ -754,6 +780,7 @@
         // Peer is connected to the room
         this.signaling.on('user-connect', () => {
           console.log('wclient->signaling() : "user-connect" message received');
+          this.updateState('idle');
           this.rtc.paired = true;
           $scope.call.paired = true;
         });
@@ -763,7 +790,7 @@
           console.log('wclient->signaling() : "user-disconnect" message received');
           this.rtc.paired = false;
           $scope.call.paired = false;
-          this.updateState('failed');
+          this.updateState('waiting');
           this.destroyPeerConnection();
         });
 
@@ -771,6 +798,7 @@
         this.signaling.on('call-invite', () => {
           console.log('wclient->signaling() : "call-invite" message received');
           this.updateState('ringing');
+          $scope.push.outgoing.show = false;
         });
 
         // Peer has accepted the incoming call, the webrtc connection process can now start.

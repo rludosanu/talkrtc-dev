@@ -2,9 +2,8 @@
   var app = angular.module('app', []);
 
   app.controller('conferenceCreate', function($scope, $http, $window, $location) {
-    var formatDatetime = function(date, time) {
-      var d = new Date(date);
-      var t = new Date(time);
+    var formatDatetime = function(datetime) {
+      var d = new Date(datetime);
       var f = function(s) {
         s = s.toString();
         return (s.length == 1) ? '0' + s : s;
@@ -13,16 +12,15 @@
         y: d.getFullYear(),
         m: f(d.getMonth() + 1),
         d: f(d.getDate()),
-        h: f(t.getHours()),
-        i: f(t.getMinutes())
+        h: f(d.getHours()),
+        i: f(d.getMinutes())
       };
 
       return `${dt.y}-${dt.m}-${dt.d} ${dt.h}:${dt.i}:00`;
     }
 
     $scope.conference = {
-      date: '',
-      time: '',
+      datetime: '',
       host: {
         email: '',
         name: ''

@@ -1,0 +1,280 @@
+/* ************************************************************************** */
+/*                                                                            */
+/* File name   : index.css                                                    */
+/* Description : Index page stylesheet                                        */
+/* Author      : Razvan Ludosanu                                              */
+/* Email       : ludosanu@gmail.com                                           */
+/*                                                                            */
+/* ************************************************************************** */
+
+/*
+** Global
+*/
+body {
+  margin: 0px;
+  padding: 0px;
+  background: white;
+  font-family: 'Quicksand';
+}
+
+a {
+  text-decoration: none;
+}
+
+/*
+** G class
+*/
+.g-wrapper {
+  position: absolute;
+  z-index: 3;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+.g-container {
+  width: 90%;
+  margin: auto;
+}
+
+.g-content {
+  padding: 25px;
+}
+
+.g-label {
+  font-size: 14px;
+  color: #333333;
+  margin-bottom: 8px;
+}
+
+.g-input {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Quicksand';
+  font-size: 14px;
+  border: 1px solid #E5E4E2;
+  color: #333333;
+  padding: 12px;
+  border-radius: 6px;
+  outline: none;
+  margin: 0px 0px 25px 0px;
+  -webkit-transition: border 0.5s;
+  transition: border 0.5s;
+}
+
+.g-input:hover {
+  border: 1px solid #333333;
+}
+
+.g-button {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Quicksand';
+  font-size: 14px;
+  border: 1px solid #333333;
+  background: #333333;
+  color: white;
+  padding: 12px;
+  border-radius: 6px;
+  outline: none;
+  margin: 0px;
+}
+
+.g-button:hover {
+  cursor: pointer;
+}
+
+/*
+** Background
+*/
+#background {
+  position: absolute;
+  z-index: 1;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  background-image: url('https://images.pexels.com/photos/155008/pexels-photo-155008.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  -webkit-filter: brightness(0.8);
+  filter: brightness(0.8);
+}
+
+/*
+** Navbar
+*/
+#navbar {
+  width: 100%;
+  color: white;
+}
+
+#navbar a {
+  color: white;
+}
+
+#navbar-container {
+  display: flex;
+  justify-content: space-between;
+  margin: 0px auto;
+  align-items: center;
+}
+
+#navbar-container .logo {
+  font-size: 28px;
+  margin-right: 15px;
+}
+
+#navbar-container .brand {
+  font-size: 22px;
+}
+
+#navbar-container .nav {
+  flex-grow: 1;
+}
+
+#navbar-container .nav ul {
+  margin: 0px;
+  padding: 0px;
+  list-style-type: none;
+  float: right;
+}
+
+#navbar-container .nav ul li {
+  display: inline-block;
+  font-size: 15px;
+  margin: 0px 50px 0px 0px;
+}
+
+#navbar-container .nav ul li:hover {
+  text-decoration: underline;
+}
+
+#navbar-container .nav ul li:last-of-type {
+  margin: 0px;
+}
+
+/*
+** Jumbotron
+*/
+
+#jumbotron {
+  width: 100%;
+  margin-top: 50px;
+}
+
+#jumbotron-header {
+  margin-bottom: 50px;
+}
+
+#jumbotron-header h1 {
+  color: white;
+  font-size: 50px;
+  font-weight: 500;
+  line-height: 50px;
+  margin: 0px 0px 15px 0px;
+  padding: 0px;
+}
+
+#jumbotron-header p {
+  color: white;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 32px;
+  margin: 0px 0px 45px 0px;
+  padding: 0px;
+}
+
+#jumbotron-header ul {
+  margin: 0px;
+  padding: 0px;
+}
+
+#jumbotron-header ul li {
+  display: inline-block;
+  list-style-type: none;
+  text-align: center;
+  margin-right: 65px;
+  color: white;
+}
+
+#jumbotron-header ul li:last-of-type {
+  margin-right: 0px;
+}
+
+#jumbotron-header ul li .icon {
+  font-size: 20px;
+  border: 2px solid white;
+  padding: 25px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-bottom: 15px;
+}
+
+#jumbotron-header ul li .caption {
+  font-size: 15px;
+}
+
+#jumbotron-form {
+  margin: auto;
+  width: 500px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0px 0px 15px #3B3131;
+}
+
+#jumbotron-form h2 {
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 40px;
+  margin: 0px 0px 10px 0px;
+  padding: 0px;
+}
+
+#jumbotron-form p {
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 30px;
+  margin: 0px 0px 25px 0px;
+  padding: 0px;
+}
+
+#jumbotron-form-body {
+  margin-top: 25px;
+}
+
+#jumbotron-form-body p {
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 30px;
+  margin: 15px 0px;
+  padding: 0px;
+}
+
+/*
+** 404
+*/
+#page-not-found {
+  margin-top: 150px;
+  text-align: center;
+  border-radius: 6px;
+  padding: 25px;
+  color: white;
+}
+
+#page-not-found .fa {
+  font-size: 80px;
+}
+
+#page-not-found h1 {
+  font-size: 40px;
+  font-weight: 500;
+}
+
+#page-not-found p {
+  font-weight: 22px;
+  font-weight: 400;
+}

@@ -12,111 +12,103 @@
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans|Quicksand:300,400,500,700" rel="stylesheet" />
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
 
-		<!-- Custom stylesheets -->
-    <link rel="stylesheet" type="text/css" href="/public/stylesheets/index.css" />
+		<!-- Extra small devices (phones, 600px and down) -->
+		<link rel="stylesheet" media="only screen and (max-width: 600px)" href="/public/stylesheets/xs-screen.css" type="text/css" />
+
+		<!-- Small devices (portrait tablets and large phones, 600px and up) -->
+		<link rel="stylesheet" media="only screen and (min-width: 600px) and (max-width: 768px)" href="/public/stylesheets/s-screen.css" type="text/css" />
+
+		<!-- Medium devices (landscape tablets, 768px and up) -->
+		<link rel="stylesheet" media="only screen and (min-width: 768px) and (max-width: 992px)" href="/public/stylesheets/m-screen.css" type="text/css" />
+
+		<!-- Large devices (laptops/desktops, 992px and up) -->
+		<link rel="stylesheet" media="only screen and (min-width: 992px) and (max-width: 1600px)" href="/public/stylesheets/l-screen.css" type="text/css" />
+
+		<!-- Extra large devices (large laptops and desktops, 1200px and up) -->
+		<link rel="stylesheet" media="only screen and (min-width: 1600px)" href="/public/stylesheets/xl-screen.css" type="text/css" />
 
 		<!-- Vendor scritps -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular.js"></script>
 	</head>
 	<body ng-controller="conferenceCreate">
 		<div id="background"></div>
-		<div id="navbar">
-			<div class="container">
-		    <div class="logo">
-		      <a href="/">
-		        <span class="fa fa-circle-o-notch fa-fw"></span>
-		      </a>
-		    </div>
-				<div class="brand">
-					<a href="/">
-						TalkRTC
-					</a>
+
+		<div class="g-wrapper">
+			<div class="g-container">
+				<div class="g-content">
+					<header id="navbar">
+						<div id="navbar-container">
+							<div class="logo"><a href="/"><span class="fa fa-circle-o-notch fa-fw"></span></a></div>
+							<div class="brand"><a href="/">TalkRTC</a></div>
+					    <div class="nav">
+					      <ul>
+									<li><a href="https://github.com/rludosanu/talkrtc-dev" target="_blank">Github repository</a></li>
+					        <li><a href="https://www.linkedin.com/in/razvan-ludosanu/" target="_blank">Linkedin profile</a></li>
+					      </ul>
+					    </div>
+					  </div>
+					</header>
 				</div>
-		    <div class="nav">
-		      <ul>
-						<li><a href="https://github.com/rludosanu/talkrtc-dev" target="_blank">Github repository</a></li>
-		        <li><a href="https://www.linkedin.com/in/razvan-ludosanu/" target="_blank">Linkedin profile</a></li>
-		      </ul>
-		    </div>
-		  </div>
-		</div>
-		<div id="jumbo">
-			<div class="jumbo-container">
-				<div class="jumbo-presentation">
-					<div class="title">Prospecting made easy</div>
-					<div class="subtitle">TalkRTC allows you to exchange instant messages, audio and video calls using the innovative WebRTC technology with just a few informations.</div>
-					<div class="buttons">
-						<div class="button">
-							<div class="icon">
-								<span class="fa fa-fw fa-paper-plane"></span>
-							</div>
-							<div class="text">
-								MESSAGING
-							</div>
-						</div>
-						<div class="button">
-							<div class="icon">
-								<span class="fa fa-fw fa-phone"></span>
-							</div>
-							<div class="text">
-								AUDIO CALL
+			</div>
+			<div class="g-container">
+				<div id="jumbotron">
+					<div id="jumbotron-flex">
+
+						<div id="jumbotron-header">
+							<div class="g-content">
+								<h1>Prospecting made easy</h1>
+								<p>Forget about emails, phone numbers and accounts. TalkRTC allows you to exchange instant messages, audio and video calls worldwide using the innovative WebRTC technology with just a few informations.</p>
+								<ul>
+									<li>
+										<div class="icon"><span class="fa fa-fw fa-paper-plane"></span></div>
+										<div class="caption">MESSAGING</div>
+									</li>
+									<li>
+										<div class="icon"><span class="fa fa-fw fa-phone"></span></div>
+										<div class="caption">AUDIO CALL</div>
+									</li>
+									<li>
+										<div class="icon"><span class="fa fa-fw fa-video-camera"></span></div>
+										<div class="caption">VIDEO CHAT</div>
+									</li>
+								</ul>
 							</div>
 						</div>
-						<div class="button">
-							<div class="icon">
-								<span class="fa fa-fw fa-video-camera"></span>
+
+						<div id="jumbotron-form">
+							<div class="g-content">
+								<div id="jumbotron-form-header">
+									<h2 ng-show="conference.created == false">Let's get started.</h2>
+									<h2 ng-show="conference.created == true">You're done !</h2>
+									<p ng-show="conference.created == false">Create a new conference and start exchanging right away !</p>
+								</div>
+								<div id="jumbotron-form-body" ng-show="conference.created == true">
+									<p>Your conference has been created.</p>
+									<p>We just sent you and your guest an email explaning how to join the conference room.<br />
+									If you don't receive anything in the next few minutes check your spam folder.</p>
+									<p>Got any questions or suggestions ? Send us an email at talkrtc@gmail.com !</p>
+									<p>Enjoy your conference,<br />TalkRTC Team.</p>
+								</div>
+								<form ng-submit="submit()" ng-show="conference.created == false">
+									<div class="g-label">Your full name</div>
+									<input type="text" class="g-input" placeholder="Firstname Lastname" ng-model="conference.host.name" />
+									<div class="g-label">Your email address</div>
+									<input type="email" class="g-input" placeholder="hostemail@domain.com" ng-model="conference.host.email" />
+									<div class="g-label">Your guest full name</div>
+									<input type="text" class="g-input" placeholder="Firstname Lastname" ng-model="conference.guest.name" />
+									<div class="g-label">Your guest email address</div>
+									<input type="email" class="g-input" placeholder="guestemail@domain.com" ng-model="conference.guest.email" />
+									<div class="g-label">Conference date & time</div>
+									<input type="datetime-local" class="g-input" ng-model="conference.datetime" />
+									<input type="submit" class="g-button" value="Create conference" />
+								</form>
 							</div>
-							<div class="text">
-								VIDEO CHAT
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="jumbo-conference">
-					<div class="container">
-						<div class="header">
-							<div ng-show="conference.created == false">
-								<div class="title">Let's get started.</div>
-								<div class="subtitle">Create a new conference and start exchanging right away !</div>
-							</div>
-							<div ng-show="conference.created == true">
-								<div class="title">That's it&nbsp;<span class="fa fa-fw fa-thumbs-o-up"></span>&nbsp;!</div>
-							</div>
-						</div>
-						<div class="body">
-							<form ng-submit="submit()" ng-show="conference.created == false">
-								<div class="jumbo-label">Your email address</div>
-								<input type="email" class="jumbo-input" placeholder="hostemail@domain.com" ng-model="conference.host.email" />
-								<div class="jumbo-label">Your full name</div>
-								<input type="text" class="jumbo-input" placeholder="Firstname Lastname" ng-model="conference.host.name" />
-								<div class="jumbo-label">Your guest email address</div>
-								<input type="email" class="jumbo-input" placeholder="guestemail@domain.com" ng-model="conference.guest.email" />
-								<div class="jumbo-label">Your guest full name</div>
-								<input type="text" class="jumbo-input" placeholder="Firstname Lastname" ng-model="conference.guest.name" />
-								<div class="jumbo-label">Conference date</div>
-								<input type="date" class="jumbo-input" ng-model="conference.date" />
-								<div class="jumbo-label">Time of the day</div>
-								<input type="time" class="jumbo-input" ng-model="conference.time" />
-								<input type="submit" class="jumbo-button" value="Send invitation" />
-							</form>
-							<p ng-show="conference.created == true">
-								Your conference has been created.
-								<br /><br />
-								We just sent you and your guest an email explaning how to join the conference room.
-								<br />
-								If you don't receive anything in the next few minutes check your spam folder.
-								<br /><br />
-								Got any questions or suggestions ? Send us an email at talkrtc@gmail.com !
-								<br /><br />
-								Enjoy your conference,<br />TalkRTC Team.
-							</p>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- Conference controller -->
 		<script src="/public/controllers/conference.js"></script>
 	</body>
 </html>

@@ -68,7 +68,7 @@
 		<!-- END Keypad -->
 
 		<!-- Push messages -->
-		<div id="app-push" class="fade" ng-if="push.incoming.show == true" ng-click="push.incoming.show = false">
+		<div id="app-push" class="fade" ng-show="push.incoming.show == true" ng-click="push.incoming.show = false">
 			<div class="container">
 				<!-- Icon -->
 				<div class="icon">
@@ -87,7 +87,7 @@
 		<!-- END Push messages -->
 
 		<!-- Compose message -->
-		<div id="app-compose" class="fade" ng-if="push.outgoing.show == true">
+		<div id="app-compose" class="fade" ng-show="push.outgoing.show == true">
 			<!-- Title, cancel and send buttons -->
 			<div class="header">
 				<div ng-click="push.outgoing.show = false">
@@ -121,7 +121,7 @@
 				</div>
 
 				<!-- Action buttons -->
-				<div class="actions">
+				<div class="actions" ng-hide="call.state == waiting">
 					<div class="row" ng-show="call.state === 'ended'">
 						<!-- Rate ended call -->
 						<div id="call-rate">
