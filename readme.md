@@ -1,22 +1,22 @@
 # TalkRTC
 
-## Description
-
-TalkRTC is a WebRTC POC based on Express.js, Socket.io and AngularJS. It allows to create virtual 1-to-1 conference rooms, secured by a personal access code, where anybody can exchange instant messages or make audio and video calls.
+TalkRTC is a WebRTC POC based on Express.js, Socket.io and AngularJS supported by Docker and MySQL.
+It allows to create virtual one-to-one conference rooms, secured by a personal access code, where anybody can exchange instant messages or make audio and video calls.
 
 ## Configuration
 
-Before running the app, you must complete the configuration file located in the configs directory.
+Before running the apps, you must complete the configuration files.
 
 ```
+$> cat ./client/configs/index.js
 {
-  // Main server running port
-  expressServer: {
+  // Running port
+  server: {
     port: 3000
   },
-  // Signaling server running port
-  socketServer: {
-    port: 3001
+  // Signaling server ip
+  signaling: {
+  	host: '127.0.0.1'
   },
   // Database connection options
   database: {
@@ -24,11 +24,11 @@ Before running the app, you must complete the configuration file located in the 
     port: 3306,
     dialect: 'mysql',
     operatorsAliases: Sequelize.Op,
-    database: 'talkrtcdb',
-    username: 'talkadmin',
-    password: 'abcdef123456'
+    database: 'talkrtc',
+    username: 'admin',
+    password: 'admin'
   },
-  // Sync force models on server startup
+  // Reset database tables
   models: {
     sync: false
   },
@@ -36,13 +36,59 @@ Before running the app, you must complete the configuration file located in the 
   mail: {
     service: 'gmail',
     auth: {
-      user: 'talkadmin@gmail.com',
-      pass: 'abcdef123456'
+      user: 'admin@talkrtc.com',
+      pass: 'admin'
     }
-  },
-  // Json Web Token secret encryption string
-  jsonwebtoken: {
-    secret: 'abcdef123456'
   }
 }
+
+$> cat ./signaling/configs/index.js
+{
+  // Running port
+  server: {
+    port: 3001
+  }
+}
+```
+
+## Setup
+
+### Create virtual host
+
+```
+# Create the virtual host
+$> docker-machine create --driver virtualbox talkrtc
+
+# Get the host running
+$> docker-machine start talkrtc
+
+# Setup the host environ
+$> eval $(docker-machine env talkrtc)
+```
+
+### Build images
+
+```
+# Enter the client directory and run the build command
+$> cd client ; docker build -t talkrtc-client .
+
+# Enter the signaling directory and run the build command
+$> cd signaling ; docker build -t talkrtc-signaling .
+```
+
+### Run database
+
+```
+# Run MySQL container
+docker run -d -p 3306:3306 -e "MYSQL_ROOT_PASSWORD=root" -e "MYSQL_DATABASE=talkrtc" -e "MYSQL_USER=admin" -e "MYSQL_PASSWORD=admin" mysql:5.6
+```
+
+### Run servers
+
+```
+# Run client container
+docker run -d -p 443:3000 talkrtc-server
+
+# Run signaling container
+docker run -d -p 3001:3001 talkrtc-signaling
 ```
