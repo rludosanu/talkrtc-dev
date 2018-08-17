@@ -1,6 +1,5 @@
 const joi = require('joi');
 const { Op } = require('sequelize');
-const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 module.exports = class Controller {
