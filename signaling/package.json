@@ -1,0 +1,28 @@
+{
+  "name": "talkrtc-signaling",
+  "version": "1.0.0",
+  "description": "TalkRTC signaling server",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rludosanu/talkrtc-dev.git"
+  },
+  "keywords": [
+    "WebRTC"
+  ],
+  "author": "Razvan Ludosanu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rludosanu/talkrtc-dev/issues"
+  },
+  "homepage": "https://github.com/rludosanu/talkrtc-dev#readme",
+  "dependencies": {
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "socket.io": "^2.1.1"
+  }
+}

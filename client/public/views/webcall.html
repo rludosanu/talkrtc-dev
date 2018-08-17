@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html ng-app="app">
+	<head>
+  	<!-- Title -->
+		<title>TalkRTC Webcall</title>
+
+		<!-- Metas -->
+    <meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, user-scalable=no">
+
+		<!-- Vendor stylesheets -->
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans|Quicksand:300,400,500,700" rel="stylesheet" />
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
+
+		<!-- Custom stylesheets -->
+		<link rel="stylesheet" type="text/css" href="/public/stylesheets/webcall.css" />
+
+		<!-- Vendor scripts -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-animate.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.2/angular-cookies.js"></script>
+		<script src="/public/scripts/socket.io.js"></script>
+	</head>
+	<body ng-controller="webcall">
+		<div id="app-background"></div>
+
+		<!-- Keypad -->
+		<div id="app-keypad" ng-show="isDisplayable('app-keypad')">
+			<div>
+			  <div id="app-keypad-infos">
+			    <div class="message">
+						{{ keypad.message }}
+					</div>
+			    <div class="secret">
+						<span class="fa fa-fw" ng-class="{'fa-circle': keypad.secret.length >= 1, 'fa-circle-o': keypad.secret.length < 1}"></span>
+						<span class="fa fa-fw" ng-class="{'fa-circle': keypad.secret.length >= 2, 'fa-circle-o': keypad.secret.length < 2}"></span>
+						<span class="fa fa-fw" ng-class="{'fa-circle': keypad.secret.length >= 3, 'fa-circle-o': keypad.secret.length < 3}"></span>
+						<span class="fa fa-fw" ng-class="{'fa-circle': keypad.secret.length >= 4, 'fa-circle-o': keypad.secret.length < 4}"></span>
+						<span class="fa fa-fw" ng-class="{'fa-circle': keypad.secret.length >= 5, 'fa-circle-o': keypad.secret.length < 5}"></span>
+						<span class="fa fa-fw" ng-class="{'fa-circle': keypad.secret.length >= 6, 'fa-circle-o': keypad.secret.length < 6}"></span>
+					</div>
+			  </div>
+			  <div id="app-keypad-numpad">
+			    <div class="row">
+			      <div class="item"><div class="number" ng-click="keypad.click(1)">1</div></div>
+			      <div class="item"><div class="number" ng-click="keypad.click(2)">2</div></div>
+			      <div class="item"><div class="number" ng-click="keypad.click(3)">3</div></div>
+			    </div>
+			    <div class="row">
+			      <div class="item"><div class="number" ng-click="keypad.click(4)">4</div></div>
+			      <div class="item"><div class="number" ng-click="keypad.click(5)">5</div></div>
+			      <div class="item"><div class="number" ng-click="keypad.click(6)">6</div></div>
+			    </div>
+			    <div class="row">
+			      <div class="item"><div class="number" ng-click="keypad.click(7)">7</div></div>
+			      <div class="item"><div class="number" ng-click="keypad.click(8)">8</div></div>
+			      <div class="item"><div class="number" ng-click="keypad.click(9)">9</div></div>
+			    </div>
+			    <div class="row">
+			      <div class="item"><div class="number">&nbsp;</div></div>
+			      <div class="item"><div class="number" ng-click="keypad.click(0)">0</div></div>
+			      <div class="item"><div class="number" ng-click="keypad.reset()">C</div></div>
+			    </div>
+			  </div>
+			</div>
+		</div>
+		<!-- END Keypad -->
+
+		<!-- Push messages -->
+		<div id="app-push" class="fade" ng-show="isDisplayable('app-push')" ng-click="push.incoming.show = false">
+			<div class="container">
+				<div class="icon">
+					<div class="circle">
+						<span class="fa fa-fw fa-paper-plane"></span>
+					</div>
+				</div>
+				<div class="message">
+					<div class="from">{{ push.incoming.from }}</div>
+					<div class="text">{{ push.incoming.content }}</div>
+				</div>
+			</div>
+		</div>
+		<!-- END Push messages -->
+
+		<!-- Compose message -->
+		<div id="app-compose" class="fade" ng-show="isDisplayable('app-compose')">
+			<div class="header">
+				<div ng-click="push.outgoing.show = false">
+					<span class="fa fa-fw fa-times"></span>
+				</div>
+				<div>Push!</div>
+				<div ng-click="sendPush()">
+					<span class="fa fa-fw fa-paper-plane"></span>
+				</div>
+			</div>
+			<div class="body">
+				<textarea placeholder="Type your message here..." ng-model="push.outgoing.content"></textarea>
+			</div>
+		</div>
+		<!-- END Compose message -->
+
+		<!-- Call interface -->
+		<div id="app-call" ng-show="isDisplayable('app-call')">
+			<div class="container">
+				<!-- Call informations -->
+				<div class="infos" ng-show="isDisplayable('app-call-informations')">
+					<div class="userpic"></div>
+					<div class="userstate">
+						<span class="fa fa-fw fa-circle offline" ng-class="{'online': logged.remote == true, 'offline': logged.remote == false}"></span>
+					</div>
+					<div class="username" ng-show="call.state === 'ongoing' && call.type == 'audio'">
+						{{ call.username }}
+					</div>
+					<div class="callstate" ng-hide="call.state === 'ongoing'">
+						{{ call.message }}
+					</div>
+					<div class="calltimer" ng-show="call.state === 'ongoing' && call.type == 'audio'">
+						{{ call.timer }}
+					</div>
+				</div>
+				<!-- END Call informations -->
+
+				<!-- Action buttons -->
+				<div class="actions" ng-show="isDisplayable('call-actions')">
+					<div class="row" ng-show="isDisplayable('call-rate')">
+						<!-- Rate ended call -->
+						<div id="call-rate">
+							<span class="fa fa-fw fa-star" ng-click="rateCall(1)"></span>
+							<span class="fa fa-fw fa-star" ng-click="rateCall(2)"></span>
+							<span class="fa fa-fw fa-star" ng-click="rateCall(3)"></span>
+							<span class="fa fa-fw fa-star" ng-click="rateCall(4)"></span>
+							<span class="fa fa-fw fa-star" ng-click="rateCall(5)"></span>
+						</div>
+					</div>
+
+					<div class="row" ng-show="isDisplayable('call-ringing')">
+						<!-- Reject call -->
+						<div class="item">
+							<div id="call-reject" class="button" ng-click="rejectCall()">
+								<span class="fa fa-fw fa-times"></span>
+							</div>
+						</div>
+
+						<!-- Accept call -->
+						<div class="item">
+							<div id="call-accept" class="button" ng-click="acceptCall()">
+								<span class="fa fa-fw fa-check"></span>
+							</div>
+						</div>
+					</div>
+
+					<div ng-show="isDisplayable('call-not-ringing')" class="row">
+						<!-- Compose message -->
+						<div class="item" ng-show="isDisplayable('message-send')">
+							<div id="message-send" class="button" ng-click="push.outgoing.show = true">
+								<span class="fa fa-fw fa-paper-plane"></span>
+							</div>
+						</div>
+
+						<!-- Mute call -->
+						<div class="item" ng-show="isDisplayable('call-mute')">
+							<div id="call-mute" class="button" ng-click="toggleMuteCall()">
+								<span class="fa fa-fw fa-microphone"></span>
+							</div>
+						</div>
+
+						<!-- Unmute call -->
+						<div class="item" ng-show="isDisplayable('call-unmute')">
+							<div id="call-unmute" class="button" ng-click="toggleMuteCall()">
+								<span class="fa fa-fw fa-microphone-slash"></span>
+							</div>
+						</div>
+
+						<!-- Hangup call -->
+						<div class="item" ng-show="isDisplayable('call-hangup')">
+							<div id="call-hangup" class="button" ng-click="hangupCall()">
+								<span class="fa fa-fw fa-phone"></span>
+							</div>
+						</div>
+
+						<!-- Send audio call invitation -->
+						<div class="item" ng-show="isDisplayable('call-make-audio')">
+							<div id="call-make-audio" class="button" ng-click="inviteCall('audio')">
+								<span class="fa fa-fw fa-phone"></span>
+							</div>
+						</div>
+
+						<!-- Send video call invitation -->
+						<div class="item" ng-show="isDisplayable('call-make-video')">
+							<div id="call-make-video" class="button" ng-click="inviteCall('video')">
+								<span class="fa fa-fw fa-video-camera"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- END Action buttons -->
+			</div>
+
+			<!-- Video tags -->
+			<div class="videos" isDisplayable('videos')>
+				<video id="local-video" muted="muted"></video>
+				<video id="remote-video"></video>
+			</div>
+			<!-- END Video tags -->
+		</div>
+		<!-- END Call interface -->
+
+		<script src="/public/controllers/webcall.js"></script>
+	</body>
+</html>
