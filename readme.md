@@ -89,7 +89,7 @@ docker run -d -p 3306:3306 -e "MYSQL_ROOT_PASSWORD=root" -e "MYSQL_DATABASE=talk
 
 ```
 # Run client container
-docker run -d -p 443:3000 talkrtc-server
+docker run -d -p 3000:3000 talkrtc-client
 
 # Run signaling container
 docker run -d -p 3001:3001 talkrtc-signaling

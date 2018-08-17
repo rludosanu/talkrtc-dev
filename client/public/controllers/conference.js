@@ -2,6 +2,18 @@
   var app = angular.module('app', []);
 
   app.controller('conferenceCreate', function($scope, $http, $window, $location) {
+    var getClientServer = function() {
+      var scripts = document.getElementsByTagName('script');
+
+      for (var i = 0 ; i < scripts.length ; i++) {
+        var url = scripts[i].getAttribute('client-server');
+
+        if (url) {
+          return url;
+        }
+      }
+    };
+
     var formatDatetime = function(datetime) {
       var d = new Date(datetime);
       var f = function(s) {
@@ -35,9 +47,9 @@
     $scope.submit = function() {
       $http({
         method: 'POST',
-        url: 'https://192.168.1.26:3000/api/conference',
+        url: 'https://' + getClientServer() + '/api/conference',
         data: {
-          date: formatDatetime($scope.conference.date, $scope.conference.time),
+          date: formatDatetime($scope.conference.datetime),
           hostEmail: $scope.conference.host.email,
           hostName: $scope.conference.host.name,
           guestEmail: $scope.conference.guest.email,

@@ -323,25 +323,7 @@ textarea {
 
 /* Videos */
 #app-call .videos {
-
-}
-
-#local-video {
-  position: absolute;
-  z-index: 2;
-  top: 0px;
-  right: 0px;
-  width: 50%;
-  height: auto;
-}
-
-#remote-video {
-  position: absolute;
-  z-index: 2;
-  top: 0px;
-  left: 0px;
-  width: 50%;
-  height: auto;
+  display: none;
 }
 
 /*
@@ -375,11 +357,6 @@ textarea {
 #call-make-audio {
   border: 1px solid #4CC417;
   background: #4CC417;
-}
-
-#call-make-video {
-  border: 1px solid #B27A03;
-  background: #B27A03;
 }
 
 #call-hangup {

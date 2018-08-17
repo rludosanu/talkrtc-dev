@@ -13,13 +13,13 @@ class ClientRouter {
 
     // Render index page
     this.router.get('/', (req, res) => res.render('index', {
-      server: this._app.configs.server
+      clientServer: this._app.configs.server.host + ':' + this._app.configs.server.port
     }));
 
     // Render webcall page
     this.router.get('/webcall/:token', (req, res) => res.render('webcall', {
-      server: this._app.configs.server,
-      signaling: this._app.configs.signaling
+      clientServer: this._app.configs.server.host + ':' + this._app.configs.server.port,
+      signalingServer: this._app.configs.signaling.host + ':' + this._app.configs.signaling.port
     }));
 
     // Render 404 page

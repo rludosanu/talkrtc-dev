@@ -28,7 +28,7 @@ server.listen(config.server.port, (error) => {
 
 // Connection
 webcall.on('connection', function(socket) {
-	console.log('[' + socket.id + '] New socket connection. Waiting for login.');
+	console.log('[' + socket.id + '] New socket connection. Waiting for login');
 	socket.conference = null;
 
 	socket.on('user-login', function(datas) {
@@ -65,10 +65,10 @@ webcall.on('connection', function(socket) {
 	});
 
 	// Call invitation
-	socket.on('call-invite', function(type) {
-		console.log('[' + socket.id + '] Call invitation ("' + type + '").');
+	socket.on('call-invite', function() {
+		console.log('[' + socket.id + '] Call invitation');
 		if (!socket.conference) return ;
-		socket.to(socket.conference.token).emit('call-invite', type);
+		socket.to(socket.conference.token).emit('call-invite');
 	});
 
 	// Call hanged up

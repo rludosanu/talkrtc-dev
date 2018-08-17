@@ -43,6 +43,7 @@ module.exports = class Controller {
         var datetime = datas.date.split(' ');
         var date = datetime[0].split('-');
         var time = datetime[1].split(':');
+        var url = self._app.configs.server.host + ':' + this._app.configs.server.port;
 
         date = `${date[2]}/${date[1]}/${date[0]}`;
         time = `${time[0]}:${time[1]}`;
@@ -57,7 +58,7 @@ module.exports = class Controller {
             <div style="font-size: 22px; margin-bottom: 25px;">Hi ${datas.guestName} !</div>
             <div style="margin-bottom: 20px;">You have been invited by <strong>${datas.hostName}</strong> to join a TalkRTC conference on <strong>${date}</strong> at <strong>${time}</strong></div>
             <div style="margin-bottom: 20px;">Your personnal access code is <strong>${datas.guestAccessCode}</strong></div>
-            <div style="margin-bottom: 20px;">Join your conference at <a href="https://192.168.1.26:3000/webcall/${conference.dataValues.token}">www.talkrtc.io/webcall/${conference.dataValues.token}</a></div>
+            <div style="margin-bottom: 20px;">Join your conference at <a href="https://${url}/webcall/${conference.dataValues.token}">https://${url}/webcall/${conference.dataValues.token}</a></div>
             <div>Enjoy,<br /><strong>TalkRTC Team</strong></div>
           </div>
           `
@@ -73,7 +74,7 @@ module.exports = class Controller {
             <div style="font-size: 22px; margin-bottom: 25px;">Hi ${datas.hostName} !</div>
             <div style="margin-bottom: 20px;">You have invited <strong>${datas.guestName}</strong> to join a TalkRTC conference on <strong>${date}</strong> at <strong>${time}</strong></div>
             <div style="margin-bottom: 20px;">Your access code is <strong>${datas.hostAccessCode}</strong></div>
-            <div style="margin-bottom: 20px;">Join your conference at <a href="https://192.168.1.26:3000/webcall/${conference.dataValues.token}">www.talkrtc.io/webcall/${conference.dataValues.token}</a></div>
+            <div style="margin-bottom: 20px;">Join your conference at <a href="https://${url}/webcall/${conference.dataValues.token}">https://${url}/webcall/${conference.dataValues.token}</a></div>
             <div>Enjoy,<br /><strong>TalkRTC Team</strong></div>
           </div>
           `

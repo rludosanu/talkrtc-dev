@@ -1,9 +1,21 @@
 (function() {
   var app = angular.module('app', ['ngCookies', 'ngAnimate']);
 
+  var getServer = function(type) {
+    var scripts = document.getElementsByTagName('script');
+
+    for (var i = 0 ; i < scripts.length ; i++) {
+      var url = scripts[i].getAttribute(type + '-server');
+
+      if (url) {
+        return url;
+      }
+    }
+  };
+
   // Angular factory for socket.io defined as "socket"
   app.factory('socket', function ($rootScope) {
-    var socket = io('https://192.168.1.26:3001/webcall');
+    var socket = io('https://' + getServer('signaling') + '/webcall');
 
     return {
       on: function (eventName, callback) {
@@ -35,7 +47,6 @@
 
         // Call state
         this.call = {
-          type: 'audio',
           state: 'waiting',
           states: {
             enum: {
@@ -130,7 +141,6 @@
         });
 
         // console.info(self.rtc.peerConnection);
-
         console.log('createPeerConnection() : Setting up RTCPeerConnection handlers');
 
         self.rtc.peerConnection.onicecandidate = self.sendICECandidate.bind(self);
@@ -144,7 +154,6 @@
         } else {
           self.rtc.peerConnection.onnegotiationneeded = null;
         }
-        console.log(self.rtc.peerConnection.onnegotiationneeded);
 
         return true;
       }
@@ -539,14 +548,12 @@
 
           self.call.state = state;
           self.call.muted = false;
-          self.call.type = 'audio';
 
           self.stopTimer();
           self.stopRingtone();
 
           $scope.call.state = state;
           $scope.call.message = self.call.states.enum.waiting.message;
-          $scope.call.type = 'audio';
         }
         // "idle" => Both peers are connected
         else if (state == self.call.states.enum.idle.state) {
@@ -557,14 +564,12 @@
 
           self.call.state = state;
           self.call.muted = false;
-          self.call.type = 'audio';
 
           self.stopTimer();
           self.stopRingtone();
 
           $scope.call.state = state;
           $scope.call.message = self.call.states.enum.idle.message;
-          $scope.call.type = 'audio';
         }
         // "calling" => Waiting for the peer to accept or reject the call
         else if (state == self.call.states.enum.calling.state) {
@@ -577,7 +582,6 @@
 
           $scope.call.state = state;
           $scope.call.message = self.call.states.enum.calling.message;
-          $scope.call.type = self.call.type;
         }
         // "ringing" => Either accept or reject the incoming call
         else if (state == self.call.states.enum.ringing.state) {
@@ -589,7 +593,6 @@
           self.call.state = state;
           self.startRingtone();
 
-          $scope.call.type = self.call.type;
           $scope.call.state = state;
           $scope.call.message = self.call.states.enum.ringing.message;
           $scope.push.outgoing.show = false;
@@ -753,19 +756,13 @@
       ** DESCRIPTION
       **    Sends a call invitation to peer and waits for a "call-accept" or "call-reject" message from the signaling server.
       */
-      inviteCall(type) {
+      inviteCall() {
         var self = this;
 
-        if (['audio', 'video'].indexOf(type) == -1) {
-          console.error('inviteCall() : Invalid invite type: "' + type + '"');
-          return ;
-        }
-        else
-          console.log('inviteCall() : Sending a ("' + type + '")"call-invite" message');
+        console.log('inviteCall() : Sending a "call-invite" message');
 
         self.updateState('calling');
-        self.call.type = type;
-        self.signaling.emit('call-invite', type);
+        self.signaling.emit('call-invite');
       }
 
       /*
@@ -778,12 +775,7 @@
       makeCall() {
         var self = this;
 
-        console.log('makeCall() : making a new call (' + self.call.type + ')');
-        self.rtc.mediaConstraints = {
-          audio: true,
-          video: (self.call.type == 'audio') ? false : true
-        };
-        console.log('Media contraints updated to', self.rtc.mediaConstraints);
+        console.log('makeCall() : Making a new call');
         self.createPeerConnection();
         self.getMediaAccess();
       }
@@ -946,10 +938,9 @@
         });
 
         // Incoming call invitation
-        self.signaling.on('call-invite', function(type) {
-          console.log('signaling() : Received ("' + type + '")"call-invite"');
+        self.signaling.on('call-invite', function() {
+          console.log('signaling() : Received "call-invite"');
 
-          self.call.type = type;
           self.updateState('ringing');
         });
 
@@ -1020,7 +1011,6 @@
 
     // Setup call informations
     $scope.call = {
-      type: 'audio',
       state: 'waiting',
       message: wclient.call.states.enum['waiting'].message,
       timer: '00:00',
@@ -1044,97 +1034,6 @@
       }
     };
 
-    // Check if an element is displayable
-    $scope.isDisplayable = function(element) {
-      switch(element) {
-        case 'app-keypad':
-          if ($scope.logged.local == false)
-            return true;
-          break;
-
-        case 'app-push':
-          if ($scope.push.incoming.show == true)
-            return true;
-          break;
-
-        case 'app-compose':
-          if ($scope.push.outgoing.show == true)
-            return true;
-          break;
-
-        case 'app-call':
-          if ($scope.logged.local == true)
-            return true;
-          break;
-
-        case 'app-call-informations':
-          if ($scope.call.state == 'ongoing' && $scope.call.type == 'video')
-            return false;
-          return true;
-          break;
-
-        case 'call-actions':
-          if ($scope.call.state != 'waiting')
-            return true;
-          break;
-
-        case 'call-ringing':
-          if ($scope.call.state == 'ringing')
-            return true;
-          break;
-
-        case 'call-not-ringing':
-          if ($scope.call.state != 'ringing')
-            return true;
-          break;
-
-        case 'call-rate':
-          if ($scope.call.state == 'ended')
-            return true;
-          break;
-
-        case 'message-send':
-          if ($scope.call.state == 'idle' || $scope.call.state == 'rejected' || $scope.call.state == 'failed')
-            return true;
-          break;
-
-        case 'call-mute':
-          if ($scope.call.state == 'ongoing' && $scope.call.muted == false)
-            return true;
-          break;
-
-        case 'call-unmute':
-          if ($scope.call.state == 'ongoing' && $scope.call.muted == true)
-            return true;
-          break;
-
-        case 'call-make-audio':
-          if ($scope.call.state == 'idle' || $scope.call.state == 'rejected' || $scope.call.state == 'failed')
-            return true;
-          break;
-
-        case 'call-make-video':
-          if ($scope.call.state == 'idle' || $scope.call.state == 'rejected' || $scope.call.state == 'failed')
-            return true;
-          break;
-
-        case 'call-hangup':
-          if ($scope.call.state == 'calling' || $scope.call.state == 'ongoing')
-            return true;
-          break;
-
-        case 'videos':
-          if ($scope.call.state == 'ongoing' && $scope.call.type == 'video')
-            return true;
-          break;
-
-        default:
-          return false;
-          break;
-      }
-      return false;
-    };
-
     // Keypad for login
     $scope.keypad = {
       secret: '',
@@ -1155,7 +1054,7 @@
         if (self.secret.length == 6) {
           $http({
             method: 'POST',
-            url: 'https://192.168.1.26:3000/api/conference/login',
+            url: 'https://' + getServer('client') + '/api/conference/login',
             data: {
               token: url[url.length - 1],
               accessCode: parseInt(self.secret)

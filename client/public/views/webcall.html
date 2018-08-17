@@ -26,7 +26,7 @@
 		<div id="app-background"></div>
 
 		<!-- Keypad -->
-		<div id="app-keypad" ng-show="isDisplayable('app-keypad')">
+		<div id="app-keypad" ng-show="logged.local == false">
 			<div>
 			  <div id="app-keypad-infos">
 			    <div class="message">
@@ -68,7 +68,7 @@
 		<!-- END Keypad -->
 
 		<!-- Push messages -->
-		<div id="app-push" class="fade" ng-show="isDisplayable('app-push')" ng-click="push.incoming.show = false">
+		<div id="app-push" class="fade" ng-show="push.incoming.show == true" ng-click="push.incoming.show = false">
 			<div class="container">
 				<div class="icon">
 					<div class="circle">
@@ -84,7 +84,7 @@
 		<!-- END Push messages -->
 
 		<!-- Compose message -->
-		<div id="app-compose" class="fade" ng-show="isDisplayable('app-compose')">
+		<div id="app-compose" class="fade" ng-show="push.outgoing.show == true">
 			<div class="header">
 				<div ng-click="push.outgoing.show = false">
 					<span class="fa fa-fw fa-times"></span>
@@ -101,29 +101,29 @@
 		<!-- END Compose message -->
 
 		<!-- Call interface -->
-		<div id="app-call" ng-show="isDisplayable('app-call')">
+		<div id="app-call" ng-show="logged.local == true">
 			<div class="container">
 				<!-- Call informations -->
-				<div class="infos" ng-show="isDisplayable('app-call-informations')">
+				<div class="infos">
 					<div class="userpic"></div>
 					<div class="userstate">
 						<span class="fa fa-fw fa-circle offline" ng-class="{'online': logged.remote == true, 'offline': logged.remote == false}"></span>
 					</div>
-					<div class="username" ng-show="call.state === 'ongoing' && call.type == 'audio'">
+					<div class="username">
 						{{ call.username }}
 					</div>
 					<div class="callstate" ng-hide="call.state === 'ongoing'">
 						{{ call.message }}
 					</div>
-					<div class="calltimer" ng-show="call.state === 'ongoing' && call.type == 'audio'">
+					<div class="calltimer" ng-show="call.state === 'ongoing'">
 						{{ call.timer }}
 					</div>
 				</div>
 				<!-- END Call informations -->
 
 				<!-- Action buttons -->
-				<div class="actions" ng-show="isDisplayable('call-actions')">
-					<div class="row" ng-show="isDisplayable('call-rate')">
+				<div class="actions" ng-show="call.state != 'waiting'">
+					<div class="row" ng-show="call.state == 'ended'">
 						<!-- Rate ended call -->
 						<div id="call-rate">
 							<span class="fa fa-fw fa-star" ng-click="rateCall(1)"></span>
@@ -134,7 +134,7 @@
 						</div>
 					</div>
 
-					<div class="row" ng-show="isDisplayable('call-ringing')">
+					<div class="row" ng-show="call.state == 'ringing'">
 						<!-- Reject call -->
 						<div class="item">
 							<div id="call-reject" class="button" ng-click="rejectCall()">
@@ -150,46 +150,39 @@
 						</div>
 					</div>
 
-					<div ng-show="isDisplayable('call-not-ringing')" class="row">
+					<div class="row" ng-show="call.state != 'ringing'">
 						<!-- Compose message -->
-						<div class="item" ng-show="isDisplayable('message-send')">
+						<div class="item" ng-show="call.state == 'idle' || call.state == 'rejected' || call.state == 'failed'">
 							<div id="message-send" class="button" ng-click="push.outgoing.show = true">
 								<span class="fa fa-fw fa-paper-plane"></span>
 							</div>
 						</div>
 
 						<!-- Mute call -->
-						<div class="item" ng-show="isDisplayable('call-mute')">
+						<div class="item" ng-show="call.state == 'ongoing' && call.muted == false">
 							<div id="call-mute" class="button" ng-click="toggleMuteCall()">
 								<span class="fa fa-fw fa-microphone"></span>
 							</div>
 						</div>
 
 						<!-- Unmute call -->
-						<div class="item" ng-show="isDisplayable('call-unmute')">
+						<div class="item" ng-show="call.state == 'ongoing' && call.muted == true">
 							<div id="call-unmute" class="button" ng-click="toggleMuteCall()">
 								<span class="fa fa-fw fa-microphone-slash"></span>
 							</div>
 						</div>
 
 						<!-- Hangup call -->
-						<div class="item" ng-show="isDisplayable('call-hangup')">
+						<div class="item" ng-show="call.state == 'calling' || call.state == 'ongoing'">
 							<div id="call-hangup" class="button" ng-click="hangupCall()">
 								<span class="fa fa-fw fa-phone"></span>
 							</div>
 						</div>
 
 						<!-- Send audio call invitation -->
-						<div class="item" ng-show="isDisplayable('call-make-audio')">
-							<div id="call-make-audio" class="button" ng-click="inviteCall('audio')">
+						<div class="item" ng-show="call.state == 'idle' || call.state == 'rejected' || call.state == 'failed'">
+							<div id="call-make-audio" class="button" ng-click="inviteCall()">
 								<span class="fa fa-fw fa-phone"></span>
-							</div>
-						</div>
-
-						<!-- Send video call invitation -->
-						<div class="item" ng-show="isDisplayable('call-make-video')">
-							<div id="call-make-video" class="button" ng-click="inviteCall('video')">
-								<span class="fa fa-fw fa-video-camera"></span>
 							</div>
 						</div>
 					</div>
@@ -198,7 +191,7 @@
 			</div>
 
 			<!-- Video tags -->
-			<div class="videos" isDisplayable('videos')>
+			<div class="videos">
 				<video id="local-video" muted="muted"></video>
 				<video id="remote-video"></video>
 			</div>
@@ -206,6 +199,6 @@
 		</div>
 		<!-- END Call interface -->
 
-		<script src="/public/controllers/webcall.js"></script>
+		<script src="/public/controllers/webcall.js" client-server="[[ clientServer ]]" signaling-server="[[ signalingServer ]]"></script>
 	</body>
 </html>
