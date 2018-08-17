@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 
 module.exports = {
   server: {
+    host: '192.168.99.100',
     port: 3000
   },
   signaling: {

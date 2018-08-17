@@ -12,11 +12,13 @@ $> cat ./client/configs/index.js
 {
   // Running port
   server: {
+    host: '192.168.99.100',
     port: 3000
   },
   // Signaling server ip
   signaling: {
-  	host: '127.0.0.1'
+    host: '192.168.99.100',
+    port: 3001
   },
   // Database connection options
   database: {
