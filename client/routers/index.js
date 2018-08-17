@@ -8,24 +8,25 @@ class ClientRouter {
     // Create new router
     this.router = express.Router();
 
-    // Setup public directory path
+    // Setup public directory
     this.router.use('/public', express.static(path.join(__dirname, '../public')));
 
-    // Index page
-    this.router.get('/', (req, res) => res.sendFile(this.resolveViewPath('index')));
+    // Render index page
+    this.router.get('/', (req, res) => res.render('index', {
+      server: this._app.configs.server
+    }));
 
-    // Call conference
-    this.router.get('/webcall/:token', (req, res) => res.sendFile(this.resolveViewPath('webcall')));
+    // Render webcall page
+    this.router.get('/webcall/:token', (req, res) => res.render('webcall', {
+      server: this._app.configs.server,
+      signaling: this._app.configs.signaling
+    }));
 
-    // Page not found
-    this.router.get('/404', (req, res) => res.sendFile(this.resolveViewPath('404')));
+    // Render 404 page
+    this.router.get('/404', (req, res) => res.render('404'));
 
     // Redirect any other request to /404
     this.router.get('/*', (req, res) => res.redirect('/404'));
-  }
-
-  resolveViewPath(filename) {
-    return path.resolve(path.join(__dirname, '../public/views', filename + '.html'));
   }
 }
 

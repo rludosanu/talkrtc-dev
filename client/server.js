@@ -3,6 +3,8 @@ const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const https = require('https');
+const mustacheExpress = require('mustache-express');
+const path = require('path');
 
 const Config = require('./config/index');
 const Database = require('./database/index');
@@ -31,6 +33,12 @@ class Server {
 		this.app.use(bodyParser.json());
 		this.app.use(bodyParser.urlencoded({ extended: true }));
 		this.app.use(bodyParser.json({ type: 'application/json' }));
+
+		// Setup mustache
+		this.app.engine('html', mustacheExpress());
+		this.app.set('view engine', 'html');
+		this.app.set('view cache', false);
+		this.app.set('views', path.join(__dirname, '/public/views'));
 
 		// Setup routers
 		this.app.use(this.routers.client.router);
