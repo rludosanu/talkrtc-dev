@@ -2,17 +2,17 @@ const Sequelize = require('sequelize');
 
 module.exports = {
   server: {
-    host: '192.168.1.26',
+    host: '82.67.201.36',
     port: 3000
   },
   signaling: {
-    host: '192.168.1.26',
+    host: '82.67.201.36',
     port: 3001
   },
   database: {
-    host: '192.168.99.100',
-    port: 3306,
-    dialect: 'mysql',
+    host: '82.67.201.36',
+    port: 5432,
+    dialect: 'postgres',
     operatorsAliases: Sequelize.Op,
     database: 'talkrtc',
     username: 'admin',

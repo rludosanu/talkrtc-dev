@@ -1,7 +1,7 @@
 # TalkRTC
 
-TalkRTC is a WebRTC POC based on Express.js, Socket.io and AngularJS supported by Docker and MySQL.
-It allows to create virtual one-to-one conference rooms, secured by a personal access code, where anybody can exchange instant messages or make audio and video calls.
+TalkRTC is a WebRTC POC based on Express.js, Socket.io and AngularJS supported by Docker and PostgreSQL.
+It allows to create virtual one-to-one conference rooms, secured by a personal access code, where anybody can exchange instant messages and audio calls.
 
 ## Configuration
 
@@ -12,23 +12,23 @@ $> cat ./client/configs/index.js
 {
   // Running port
   server: {
-    host: '192.168.99.100',
+    host: '',
     port: 3000
   },
   // Signaling server ip
   signaling: {
-    host: '192.168.99.100',
+    host: '',
     port: 3001
   },
   // Database connection options
   database: {
-    host: '127.0.0.1',
-    port: 3306,
-    dialect: 'mysql',
+    host: '',
+    port: 5432 || 3306,
+    dialect: 'postgres || mysql',
     operatorsAliases: Sequelize.Op,
-    database: 'talkrtc',
-    username: 'admin',
-    password: 'admin'
+    database: 'talkrc',
+    username: '',
+    password: ''
   },
   // Reset database tables
   models: {
@@ -36,10 +36,10 @@ $> cat ./client/configs/index.js
   },
   // Node mailer options
   mail: {
-    service: 'gmail',
+    service: '',
     auth: {
-      user: 'admin@talkrtc.com',
-      pass: 'admin'
+      user: '',
+      pass: ''
     }
   }
 }
@@ -55,42 +55,78 @@ $> cat ./signaling/configs/index.js
 
 ## Setup
 
-### Create virtual host
+### MacOS and Linux
+
+Create the virtual host.
 
 ```
-# Create the virtual host
 $> docker-machine create --driver virtualbox talkrtc
 
-# Get the host running
 $> docker-machine start talkrtc
 
-# Setup the host environ
 $> eval $(docker-machine env talkrtc)
 ```
 
-### Build images
+Build the client and signaling servers containers.
 
 ```
-# Enter the client directory and run the build command
 $> cd client ; docker build -t talkrtc-client .
 
-# Enter the signaling directory and run the build command
 $> cd signaling ; docker build -t talkrtc-signaling .
 ```
 
-### Run database
+Run the MySQL or the PostgreSQL database. Note that the version of MySQL must be <= 5.6 otherwise Sequelize will fail on authentication.
 
 ```
-# Run MySQL container
-docker run -d -p 3306:3306 -e "MYSQL_ROOT_PASSWORD=root" -e "MYSQL_DATABASE=talkrtc" -e "MYSQL_USER=admin" -e "MYSQL_PASSWORD=admin" mysql:5.6
+$> docker run -d -p 3306:3306 -e "MYSQL_ROOT_PASSWORD=__root_password__" -e "MYSQL_DATABASE=talkrtc" -e "MYSQL_USER=__user__" -e "MYSQL_PASSWORD=__password__" mysql:5.6
+
+# or
+
+$> docker run -d -p 5432:5432 -e "POSTGRES_PASSWORD=__password__" -e "POSTGRES_USER=__user__" -e "POSTGRES_DB=talkrtc" postgres
 ```
 
-### Run servers
+Run the client and signaling servers.
 
 ```
-# Run client container
-docker run -d -p 3000:3000 talkrtc-client
+$> docker run -d -p 3000:3000 talkrtc-client
 
-# Run signaling container
-docker run -d -p 3001:3001 talkrtc-signaling
+$> docker run -d -p 3001:3001 talkrtc-signaling
 ```
+
+Enjoy !
+
+### Raspberry Pi 3
+
+Replace the client and signaling Dockerfiles FROM command.
+
+```
+FROM node:alpine
+
+# by
+
+FROM resin/raspberry-pi-alpine-node
+```
+
+Build the client and signaling servers containers.
+
+```
+$> cd client ; docker build -t talkrtc-client .
+
+$> cd signaling ; docker build -t talkrtc-signaling .
+```
+
+Run the PostgreSQL database.
+
+```
+$> docker run -d -p 5432:5432 -e "POSTGRES_PASSWORD=__password__" -e "POSTGRES_USER=__user__" -e "POSTGRES_DB=talkrtc" tobi312/rpi-postgresql
+```
+
+Run the client and signaling servers.
+
+```
+$> docker run -d -p 3000:3000 talkrtc-client
+
+$> docker run -d -p 3001:3001 talkrtc-signaling
+```
+
+Enjoy !

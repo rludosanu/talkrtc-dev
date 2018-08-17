@@ -1,4 +1,5 @@
 # Build on a Node.js 8 Alpine
+# FROM resin/raspberry-pi-alpine-node
 FROM node:alpine
 
 # Create working directory for app

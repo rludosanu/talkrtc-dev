@@ -8,7 +8,7 @@ class Database {
 	connect() {
 		this.sequelize.authenticate()
 		.then(() => console.log('[ DATABASE ] Connected to MySQL.'))
-		.catch((error) => console.error('[ DATABASE ] Unable to connect to MySQL. Check logs for details.'));
+		.catch((error) => console.error(error));
 	}
 }
 
