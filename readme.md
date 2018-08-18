@@ -3,6 +3,11 @@
 TalkRTC is a WebRTC POC based on Express.js, Socket.io and AngularJS supported by Docker and PostgreSQL.
 It allows to create virtual one-to-one conference rooms, secured by a personal access code, where anybody can exchange instant messages and audio calls.
 
+# Demo
+
+The current live demo is hosted at https://82.67.201.36:3000.
+Since the https servers are using self-signed SSL certificates, your browser will display a "not secured" warning you must ignore.
+
 ## Configuration
 
 Before running the apps, you must complete the configuration files.
