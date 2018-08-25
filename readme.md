@@ -5,7 +5,7 @@ It allows to create virtual one-to-one conference rooms, secured by a personal a
 
 ## Demo
 
-The current live demo is hosted at **https://nodehub.freeboxos.fr:3000**.
+The current live demo is hosted at **https://82.67.201.36:3000**.
 Since the https servers are using self-signed SSL certificates, your browser will display a "not secured" warning you must ignore.
 
 ## Configuration
